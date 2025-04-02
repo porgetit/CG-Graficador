@@ -81,28 +81,7 @@ Este documento define los requisitos funcionales y no funcionales para el desarr
 
 ---
 
-## IV. Análisis y Comentarios
-
-1. **Algoritmos de Trazado**  
-   Se han definido explícitamente los algoritmos básicos para cada figura:  
-   - **Líneas**: DDA.  
-   - **Círculos**: Midpoint Circle Algorithm o Bresenham Circle Algorithm (se recomienda el primero).  
-   - **Rectángulos**: Trazado de cuatro líneas utilizando DDA o Bresenham.  
-   - **Polígonos**: Conexión de puntos consecutivos con DDA o Bresenham, cerrando la figura de ser necesario.  
-   - **Curvas**: Curva cuadrática de Bézier, la cual es una solución sencilla y eficaz para tres puntos de control.
-
-2. **Interacción del Ratón**  
-   Se ha diferenciado el uso del clic derecho y clic izquierdo según la figura, lo que permite una clara distinción en la forma de registrar los puntos de referencia para cada tipo de dibujo.
-
-3. **Modularidad y Configuración**  
-   Se establece una estructura de menús globales y submenús específicos para cada figura, lo que facilita la configuración del algoritmo de trazado sin afectar la interfaz general.
-
-4. **Uso de Funcionalidades de PyGame**  
-   La implementación manual (algoritmo básico) es obligatoria para garantizar el aprendizaje y control sobre la función de trazado, mientras que se permite la opción de métodos propios de PyGame para comparación y eficiencia.
-
----
-
-## V. Métodos de Dibujo con PyGame
+## IV. Métodos de Dibujo con PyGame
 
 ### 1. Líneas
 - **Método de PyGame**:  
@@ -181,10 +160,3 @@ Este documento define los requisitos funcionales y no funcionales para el desarr
        - `width`: Ancho de la línea.
 
 *Nota*: La cantidad de puntos calculados (variando el parámetro "t") determinará la suavidad de la curva.
-
----
-
-## VI. Análisis Final
-
-Este documento presenta una formalización completa de los requisitos del graficador, definiendo tanto las funcionalidades básicas como la configuración de la interfaz, y estableciendo de forma clara los algoritmos básicos y los métodos convencionales de PyGame para cada figura. Se garantiza que la implementación permita comparar el rendimiento y la precisión de las soluciones manuales frente a las funcionalidades nativas de PyGame, manteniendo la escala del proyecto y promoviendo la modularidad y extensibilidad.
-
