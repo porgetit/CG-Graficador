@@ -1,7 +1,3 @@
-A continuación se presenta el documento de requisitos actualizado, que incluye al final la descripción de los métodos (o "algoritmos de PyGame") convencionales para el dibujo de cada figura:
-
----
-
 # Documento de Requisitos para el Graficador
 
 ## I. Introducción
