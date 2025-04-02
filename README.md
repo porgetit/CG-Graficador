@@ -44,10 +44,6 @@ Este documento define los requisitos funcionales y no funcionales para el desarr
   - El tercer punto se confirmará con clic derecho.
 - **RF5.3**: Se deberá configurar el algoritmo de trazado para las curvas, pudiendo elegir entre:
   - **Algoritmo básico**: Implementación de una curva **cuadrática de Bézier**, la cual permite emular un comportamiento vectorial mediante tres puntos de control.  
-    La fórmula utilizada es:  
-    \[
-    B(t) = (1-t)^2 \, P_0 + 2(1-t)t \, P_1 + t^2 \, P_2,\quad t \in [0,1]
-    \]
   - **Método propio de PyGame**.
 
 ### 6. Menús y Configuraciones
