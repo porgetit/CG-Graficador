@@ -218,6 +218,33 @@ class BasicRectangleAlgorithm(DrawingAlgorithm):
             y += yIncrement
 
 
+class BasicPolygonAlgorithm(DrawingAlgorithm):
+    def draw(self, shape, surface):
+        points = shape.points
+        if len(points) < 2:
+            return
+        # Dibuja cada segmento entre puntos consecutivos
+        for i in range(len(points) - 1):
+            self.draw_line(surface, points[i], points[i+1], shape.color)
+
+    def draw_line(self, surface, start, end, color):
+        x1, y1 = start
+        x2, y2 = end
+        dx = x2 - x1
+        dy = y2 - y1
+        steps = max(abs(dx), abs(dy))
+        if steps == 0:
+            surface.set_at((round(x1), round(y1)), color)
+            return
+        x_inc = dx / steps
+        y_inc = dy / steps
+        x, y = x1, y1
+        for _ in range(steps + 1):
+            surface.set_at((round(x), round(y)), color)
+            x += x_inc
+            y += y_inc
+
+
 # Algoritmos para borrado (usando el color de fondo)
 
 class EraseAreaAlgorithm(DrawingAlgorithm):
@@ -261,8 +288,8 @@ class ShapeFactory:
                 algorithm = BasicRectangleAlgorithm()
                 return Rectangle(points, color, lineWidth, algorithm)
             elif shapeType == "POLYGON":
-                from model import DDADrawingAlgorithm
-                algorithm = DDADrawingAlgorithm()  # Se usa DDA para trazar cada segmento del polígono
+                from model import BasicPolygonAlgorithm
+                algorithm = BasicPolygonAlgorithm()
                 return Polygon(points, color, lineWidth, algorithm)
             elif shapeType == "CURVE":
                 from model import BezierCurveAlgorithm
@@ -272,10 +299,10 @@ class ShapeFactory:
                 from model import EraseAreaAlgorithm
                 algorithm = EraseAreaAlgorithm()
                 return EraseArea(points, color, lineWidth, algorithm)
-            elif shapeType == "ERASE_FREE":
-                from model import FreehandEraseAlgorithm
-                algorithm = FreehandEraseAlgorithm()
-                return EraseFree(points, color, lineWidth, algorithm)
+            # elif shapeType == "ERASE_FREE":
+            #     from model import FreehandEraseAlgorithm
+            #     algorithm = FreehandEraseAlgorithm()
+            #     return EraseFree(points, color, lineWidth, algorithm)
             else:
                 raise ValueError("Tipo de figura no reconocido")
         elif algorithmType == "PYGAME":
