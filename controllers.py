@@ -1,68 +1,40 @@
 # controllers.py
 import pygame
-from model import ShapeFactory
-from model import Canvas
+from model import ShapeFactory, Canvas
 
 class DrawingController:
     """
-    Controlador que gestiona la interacción del usuario y la coordinación
-    entre el modelo y la vista.
+    Controlador que coordina la interacción entre modelo y vista.
     """
-    def __init__(self, canvas, canvasView, menuView):
+    def __init__(self, canvas, canvasView):
         self.canvas = canvas
         self.canvasView = canvasView
-        self.menuView = menuView
-        self.currentTool = "LINE"  # Herramienta inicial
-        self.currentAlgorithm = "BASIC"  # Alternativamente "PYGAME"
+        # Herramienta actual (por defecto: línea)
+        self.currentTool = "LINE"
+        # Algoritmo actual ("BASIC" o "PYGAME")
+        self.currentAlgorithm = "BASIC"
+        # Color del pincel (usado en figuras)
+        self.current_color = (0, 0, 0)  # Negro por defecto
+        # Grosor del trazo
+        self.currentLineWidth = 1
+        # Lista temporal de puntos capturados con el mouse
         self.tempPoints = []
 
     def handleEvent(self, event):
+        # Primero se procesa la interacción sobre el lienzo (fuera de la barra de herramientas)
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:  # Clic izquierdo: registra punto
-                self.tempPoints.append(event.pos)
-            elif event.button == 3:  # Clic derecho: confirma figura
-                if self.currentTool in ["LINE", "CIRCLE", "RECTANGLE"]:
-                    if len(self.tempPoints) >= 1:
-                        points = [self.tempPoints[0], event.pos]
-                        self.createShapeFromInput(points, (255, 0, 0), 1)
-                elif self.currentTool == "POLYGON":
-                    if len(self.tempPoints) >= 2:
-                        if self.tempPoints[0] != self.tempPoints[-1]:
-                            self.tempPoints.append(self.tempPoints[0])
-                        self.createShapeFromInput(self.tempPoints, (0, 255, 0), 1)
-                elif self.currentTool == "CURVE":
-                    if len(self.tempPoints) >= 2:
-                        points = [self.tempPoints[0], self.tempPoints[1], event.pos]
-                        self.createShapeFromInput(points, (0, 0, 255), 1)
-                self.tempPoints = []
+            # Si el clic es en el área de dibujo (por ejemplo, y > 50)
+            if event.pos[1] > self.canvasView.toolbar_height:
+                if event.button == 1:
+                    self.tempPoints.append(event.pos)
+                elif event.button == 3:
+                    self.processShape(event.pos)
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_1:
-                self.selectTool("LINE")
-                self.menuView.updateMenuSelection("LINE")
-            elif event.key == pygame.K_2:
-                self.selectTool("CIRCLE")
-                self.menuView.updateMenuSelection("CIRCLE")
-            elif event.key == pygame.K_3:
-                self.selectTool("RECTANGLE")
-                self.menuView.updateMenuSelection("RECTANGLE")
-            elif event.key == pygame.K_4:
-                self.selectTool("POLYGON")
-                self.menuView.updateMenuSelection("POLYGON")
-            elif event.key == pygame.K_5:
-                self.selectTool("CURVE")
-                self.menuView.updateMenuSelection("CURVE")
-            elif event.key == pygame.K_b:
-                self.setAlgorithm("BASIC")
-                print("Algoritmo BASIC seleccionado")
-            elif event.key == pygame.K_p:
-                self.setAlgorithm("PYGAME")
-                print("Algoritmo PYGAME seleccionado")
-            elif event.key == pygame.K_s:
-                # Guardar canvas como archivo binario
+            # Opciones de teclas que no sean de la barra de herramientas
+            if event.key == pygame.K_s:
                 self.canvas.saveCanvasBinary(self.canvasView.surface, "canvas.bin")
                 print("Canvas guardado en 'canvas.bin' (archivo binario)")
             elif event.key == pygame.K_e:
-                # Exportar canvas a imagen JPG
                 try:
                     import matplotlib.pyplot as plt
                     import numpy as np
@@ -73,21 +45,59 @@ class DrawingController:
                 except ImportError:
                     print("Matplotlib o Numpy no están instalados.")
 
-    def selectTool(self, tool):
-        self.currentTool = tool
-
-    def setAlgorithm(self, algorithmType):
-        self.currentAlgorithm = algorithmType
+    def processShape(self, pos):
+        # Dependiendo de la herramienta, se procesan los puntos capturados
+        if self.currentTool in ["LINE", "CIRCLE", "RECTANGLE", "ERASE_AREA"]:
+            if len(self.tempPoints) >= 1:
+                points = [self.tempPoints[0], pos]
+                # Para herramientas de borrado, se usa el color de fondo del lienzo.
+                if self.currentTool in ["ERASE_AREA"]:
+                    color = self.canvas.background_color
+                else:
+                    color = self.current_color
+                self.createShapeFromInput(points, color, self.currentLineWidth)
+        elif self.currentTool in ["POLYGON"]:
+            if len(self.tempPoints) >= 2:
+                if self.tempPoints[0] != self.tempPoints[-1]:
+                    self.tempPoints.append(self.tempPoints[0])
+                self.createShapeFromInput(self.tempPoints, self.current_color, self.currentLineWidth)
+        elif self.currentTool in ["CURVE"]:
+            if len(self.tempPoints) >= 2:
+                points = [self.tempPoints[0], self.tempPoints[1], pos]
+                self.createShapeFromInput(points, self.current_color, self.currentLineWidth)
+        elif self.currentTool in ["ERASE_FREE"]:
+            # En borrado libre se consideran todos los puntos
+            self.tempPoints.append(pos)
+            self.createShapeFromInput(self.tempPoints, self.canvas.background_color, self.currentLineWidth)
+        self.tempPoints = []
 
     def createShapeFromInput(self, points, color, lineWidth):
         shape = ShapeFactory.createShape(self.currentTool, points, color, lineWidth, self.currentAlgorithm)
         self.canvas.addShape(shape)
         self.canvasView.render()
 
+    # Métodos para cambiar herramientas, algoritmo, colores, etc.
+    def setTool(self, tool):
+        self.currentTool = tool
+        print(f"Herramienta seleccionada: {tool}")
+
+    def setAlgorithm(self, algorithm):
+        self.currentAlgorithm = algorithm
+        print(f"Algoritmo seleccionado: {algorithm}")
+
+    def setBrushColor(self, color):
+        self.current_color = color
+        print(f"Color del pincel seleccionado: {color}")
+
+    def setCanvasColor(self, color):
+        self.canvas.background_color = color
+        print(f"Color del lienzo seleccionado: {color}")
+        self.canvasView.render()
+
 
 class EventHandler:
     """
-    Clase para el manejo de eventos de bajo nivel.
+    Clase que delega la gestión de eventos al controlador.
     """
     def __init__(self, controller):
         self.controller = controller

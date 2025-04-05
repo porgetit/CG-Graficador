@@ -10,7 +10,6 @@ import math
 class Shape(ABC):
     """
     Clase abstracta que representa una figura drawable.
-    
     Atributos:
         points (List): Lista de puntos que definen la figura.
         color (Any): Color de la figura.
@@ -34,46 +33,67 @@ class Shape(ABC):
 
 
 class Line(Shape):
-    """Clase que representa una línea."""
+    """Figura: Línea."""
     def draw(self, surface):
         self.drawingAlgorithm.draw(self, surface)
 
 
 class Circle(Shape):
-    """Clase que representa un círculo."""
+    """Figura: Círculo."""
     def draw(self, surface):
         self.drawingAlgorithm.draw(self, surface)
 
 
 class Rectangle(Shape):
-    """Clase que representa un rectángulo."""
+    """Figura: Rectángulo."""
     def draw(self, surface):
         self.drawingAlgorithm.draw(self, surface)
 
 
 class Polygon(Shape):
-    """Clase que representa un polígono."""
+    """Figura: Polígono."""
     def draw(self, surface):
         self.drawingAlgorithm.draw(self, surface)
 
 
 class Curve(Shape):
-    """Clase que representa una curva."""
+    """Figura: Curva."""
     def draw(self, surface):
         self.drawingAlgorithm.draw(self, surface)
 
 
+# NUEVAS FIGURAS DE BORRADO
+
+class EraseArea(Shape):
+    """Figura: Borrado por área (rectángulo relleno con color fondo)."""
+    def __init__(self, points, color, lineWidth, drawingAlgorithm):
+        super().__init__(points, color, lineWidth, drawingAlgorithm)
+        self.erase_color = color
+
+    def draw(self, surface):
+        self.drawingAlgorithm.draw(self, surface)
+
+
+class EraseFree(Shape):
+    """Figura: Borrado a mano alzada (trazo libre con color fondo)."""
+    def __init__(self, points, color, lineWidth, drawingAlgorithm):
+        super().__init__(points, color, lineWidth, drawingAlgorithm)
+        self.erase_color = color
+
+    def draw(self, surface):
+        self.drawingAlgorithm.draw(self, surface)
+        
+
 class DrawingAlgorithm(ABC):
     """
     Clase abstracta para algoritmos de dibujo.
-    Las clases concretas deben implementar el método draw.
     """
     @abstractmethod
     def draw(self, shape, surface):
         pass
 
 
-# Implementaciones concretas de algoritmos de dibujo
+# Algoritmos existentes
 
 class DDADrawingAlgorithm(DrawingAlgorithm):
     def draw(self, shape, surface):
@@ -94,41 +114,10 @@ class DDADrawingAlgorithm(DrawingAlgorithm):
             y += yIncrement
 
 
-class BresenhamDrawingAlgorithm(DrawingAlgorithm):
-    def draw(self, shape, surface):
-        # Se podría actualizar de manera similar, pero se recomienda usar el algoritmo de Midpoint.
-        x_center, y_center = shape.points[0]
-        # Se calcula el radio usando la distancia entre el centro y el segundo punto
-        radius = int(math.hypot(shape.points[1][0] - x_center, shape.points[1][1] - y_center))
-        x = 0
-        y = radius
-        d = 3 - 2 * radius
-
-        def draw_circle_points(x_center, y_center, x, y, color):
-            surface.set_at((x_center + x, y_center + y), color)
-            surface.set_at((x_center - x, y_center + y), color)
-            surface.set_at((x_center + x, y_center - y), color)
-            surface.set_at((x_center - x, y_center - y), color)
-            surface.set_at((x_center + y, y_center + x), color)
-            surface.set_at((x_center - y, y_center + x), color)
-            surface.set_at((x_center + y, y_center - x), color)
-            surface.set_at((x_center - y, y_center - x), color)
-
-        draw_circle_points(x_center, y_center, x, y, shape.color)
-        while y >= x:
-            x += 1
-            if d > 0:
-                y -= 1
-                d += 4 * (x - y) + 10
-            else:
-                d += 4 * x + 6
-            draw_circle_points(x_center, y_center, x, y, shape.color)
-
-
 class MidpointCircleAlgorithm(DrawingAlgorithm):
     def draw(self, shape, surface):
         x_center, y_center = shape.points[0]
-        # Calcular el radio como la distancia euclidiana entre el centro y el punto en la circunferencia
+        # Calcula el radio como distancia euclidiana entre el centro y el punto de la circunferencia.
         radius = int(math.hypot(shape.points[1][0] - x_center, shape.points[1][1] - y_center))
         x = 0
         y = radius
@@ -160,7 +149,7 @@ class BezierCurveAlgorithm(DrawingAlgorithm):
             return
         p0, p1, p2 = shape.points[0], shape.points[1], shape.points[2]
         points = []
-        steps = 100  # Suavizado de la curva
+        steps = 100
         for i in range(steps + 1):
             t = i / steps
             x = (1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * p1[0] + t ** 2 * p2[0]
@@ -175,7 +164,6 @@ class PygameDrawingAlgorithm(DrawingAlgorithm):
         if isinstance(shape, Line):
             pygame.draw.line(surface, shape.color, shape.points[0], shape.points[1], shape.lineWidth)
         elif isinstance(shape, Circle):
-            # Calcular el radio usando la distancia euclidiana
             x_center, y_center = shape.points[0]
             radius = int(math.hypot(shape.points[1][0] - x_center, shape.points[1][1] - y_center))
             pygame.draw.circle(surface, shape.color, shape.points[0], radius, shape.lineWidth)
@@ -198,20 +186,19 @@ class PygameDrawingAlgorithm(DrawingAlgorithm):
                     curve_points.append((int(x), int(y)))
                 if len(curve_points) > 1:
                     pygame.draw.lines(surface, shape.color, False, curve_points, shape.lineWidth)
-
-
+                    
+                    
 class BasicRectangleAlgorithm(DrawingAlgorithm):
     def draw(self, shape, surface):
         x1, y1 = shape.points[0]
         x2, y2 = shape.points[1]
-        p1 = (x1, y1)
-        p2 = (x2, y1)
-        p3 = (x2, y2)
-        p4 = (x1, y2)
-        self.draw_line(surface, p1, p2, shape.color)
-        self.draw_line(surface, p2, p3, shape.color)
-        self.draw_line(surface, p3, p4, shape.color)
-        self.draw_line(surface, p4, p1, shape.color)
+        # Se define el rectángulo según los dos puntos
+        rect = pygame.Rect(min(x1, x2), min(y1, y2), abs(x2 - x1), abs(y2 - y1))
+        # Dibuja cada lado usando el método draw_line
+        self.draw_line(surface, (rect.left, rect.top), (rect.right, rect.top), shape.color)
+        self.draw_line(surface, (rect.right, rect.top), (rect.right, rect.bottom), shape.color)
+        self.draw_line(surface, (rect.right, rect.bottom), (rect.left, rect.bottom), shape.color)
+        self.draw_line(surface, (rect.left, rect.bottom), (rect.left, rect.top), shape.color)
 
     def draw_line(self, surface, start, end, color):
         x1, y1 = start
@@ -222,40 +209,32 @@ class BasicRectangleAlgorithm(DrawingAlgorithm):
         if steps == 0:
             surface.set_at((round(x1), round(y1)), color)
             return
-        xInc = dx / steps
-        yInc = dy / steps
+        xIncrement = dx / steps
+        yIncrement = dy / steps
         x, y = x1, y1
         for _ in range(steps + 1):
             surface.set_at((round(x), round(y)), color)
-            x += xInc
-            y += yInc
+            x += xIncrement
+            y += yIncrement
 
 
-class BasicPolygonAlgorithm(DrawingAlgorithm):
+# Algoritmos para borrado (usando el color de fondo)
+
+class EraseAreaAlgorithm(DrawingAlgorithm):
+    def draw(self, shape, surface):
+        x1, y1 = shape.points[0]
+        x2, y2 = shape.points[1]
+        rect = pygame.Rect(min(x1, x2), min(y1, y2), abs(x2 - x1), abs(y2 - y1))
+        # Usa el color de borrado (color fondo) proporcionado en la figura
+        pygame.draw.rect(surface, shape.erase_color, rect)
+
+
+class FreehandEraseAlgorithm(DrawingAlgorithm):
     def draw(self, shape, surface):
         points = shape.points
-        n = len(points)
-        if n < 2:
+        if len(points) < 2:
             return
-        for i in range(n - 1):
-            self.draw_line(surface, points[i], points[i + 1], shape.color)
-
-    def draw_line(self, surface, start, end, color):
-        x1, y1 = start
-        x2, y2 = end
-        dx = x2 - x1
-        dy = y2 - y1
-        steps = max(abs(dx), abs(dy))
-        if steps == 0:
-            surface.set_at((round(x1), round(y1)), color)
-            return
-        xInc = dx / steps
-        yInc = dy / steps
-        x, y = x1, y1
-        for _ in range(steps + 1):
-            surface.set_at((round(x), round(y)), color)
-            x += xInc
-            y += yInc
+        pygame.draw.lines(surface, shape.erase_color, False, points, shape.lineWidth)
 
 
 # -------------------------------
@@ -264,29 +243,43 @@ class BasicPolygonAlgorithm(DrawingAlgorithm):
 
 class ShapeFactory:
     """
-    Factoría para la creación de figuras.
+    Factoría para la creación de figuras según el tipo y algoritmo.
     """
     @staticmethod
     def createShape(shapeType, points, color, lineWidth, algorithmType):
         if algorithmType == "BASIC":
             if shapeType == "LINE":
+                from model import DDADrawingAlgorithm
                 algorithm = DDADrawingAlgorithm()
                 return Line(points, color, lineWidth, algorithm)
             elif shapeType == "CIRCLE":
+                from model import MidpointCircleAlgorithm
                 algorithm = MidpointCircleAlgorithm()
                 return Circle(points, color, lineWidth, algorithm)
             elif shapeType == "RECTANGLE":
+                from model import BasicRectangleAlgorithm
                 algorithm = BasicRectangleAlgorithm()
                 return Rectangle(points, color, lineWidth, algorithm)
             elif shapeType == "POLYGON":
-                algorithm = BasicPolygonAlgorithm()
+                from model import DDADrawingAlgorithm
+                algorithm = DDADrawingAlgorithm()  # Se usa DDA para trazar cada segmento del polígono
                 return Polygon(points, color, lineWidth, algorithm)
             elif shapeType == "CURVE":
+                from model import BezierCurveAlgorithm
                 algorithm = BezierCurveAlgorithm()
                 return Curve(points, color, lineWidth, algorithm)
+            elif shapeType == "ERASE_AREA":
+                from model import EraseAreaAlgorithm
+                algorithm = EraseAreaAlgorithm()
+                return EraseArea(points, color, lineWidth, algorithm)
+            elif shapeType == "ERASE_FREE":
+                from model import FreehandEraseAlgorithm
+                algorithm = FreehandEraseAlgorithm()
+                return EraseFree(points, color, lineWidth, algorithm)
             else:
                 raise ValueError("Tipo de figura no reconocido")
         elif algorithmType == "PYGAME":
+            from model import PygameDrawingAlgorithm
             algorithm = PygameDrawingAlgorithm()
             if shapeType == "LINE":
                 return Line(points, color, lineWidth, algorithm)
@@ -298,6 +291,11 @@ class ShapeFactory:
                 return Polygon(points, color, lineWidth, algorithm)
             elif shapeType == "CURVE":
                 return Curve(points, color, lineWidth, algorithm)
+            elif shapeType == "ERASE_AREA":
+                # Para borrado con PYGAME se dibuja un rectángulo relleno
+                return EraseArea(points, color, lineWidth, algorithm)
+            elif shapeType == "ERASE_FREE":
+                return EraseFree(points, color, lineWidth, algorithm)
             else:
                 raise ValueError("Tipo de figura no reconocido")
         else:
@@ -306,10 +304,11 @@ class ShapeFactory:
 
 class Canvas:
     """
-    Clase que representa el lienzo de dibujo, conteniendo múltiples figuras.
+    Clase que representa el lienzo de dibujo.
     """
     def __init__(self):
         self.shapes = []
+        self.background_color = (255, 255, 255)  # Color de fondo por defecto
 
     def addShape(self, shape):
         """Agrega una figura al lienzo."""
@@ -320,11 +319,13 @@ class Canvas:
         self.shapes.remove(shape)
 
     def clear(self):
-        """Limpia el lienzo, eliminando todas las figuras."""
+        """Limpia el lienzo (elimina todas las figuras)."""
         self.shapes.clear()
 
-    # La funcionalidad de guardar se implementa como guardado binario del arreglo de píxeles
     def saveCanvasBinary(self, surface, filePath):
+        """
+        Guarda el arreglo de píxeles del lienzo en un archivo binario.
+        """
         import pickle
         import pygame.surfarray as surfarray
         arr = surfarray.array3d(surface)
