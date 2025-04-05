@@ -33,8 +33,8 @@ class MenuView:
         print("5 - Curva")
         print("b - Algoritmo BASIC")
         print("p - Algoritmo PYGAME")
-        print("s - Guardar lienzo (canvas.png)")
-        print("e - Exportar lienzo a JPG (canvas.jpg)")
+        print("s - Guardar canvas (archivo binario)")
+        print("e - Exportar canvas a imagen JPG")
 
     def updateMenuSelection(self, selection):
         print(f"Herramienta seleccionada: {selection}")

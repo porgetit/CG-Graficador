@@ -1,6 +1,7 @@
 # model.py
 from abc import ABC, abstractmethod
 import pygame
+import math
 
 # -------------------------------
 # Clases de Figuras y Estrategias
@@ -95,8 +96,10 @@ class DDADrawingAlgorithm(DrawingAlgorithm):
 
 class BresenhamDrawingAlgorithm(DrawingAlgorithm):
     def draw(self, shape, surface):
+        # Se podría actualizar de manera similar, pero se recomienda usar el algoritmo de Midpoint.
         x_center, y_center = shape.points[0]
-        radius = int(shape.points[1][0])
+        # Se calcula el radio usando la distancia entre el centro y el segundo punto
+        radius = int(math.hypot(shape.points[1][0] - x_center, shape.points[1][1] - y_center))
         x = 0
         y = radius
         d = 3 - 2 * radius
@@ -125,7 +128,8 @@ class BresenhamDrawingAlgorithm(DrawingAlgorithm):
 class MidpointCircleAlgorithm(DrawingAlgorithm):
     def draw(self, shape, surface):
         x_center, y_center = shape.points[0]
-        radius = int(shape.points[1][0])
+        # Calcular el radio como la distancia euclidiana entre el centro y el punto en la circunferencia
+        radius = int(math.hypot(shape.points[1][0] - x_center, shape.points[1][1] - y_center))
         x = 0
         y = radius
         d = 1 - radius
@@ -171,7 +175,9 @@ class PygameDrawingAlgorithm(DrawingAlgorithm):
         if isinstance(shape, Line):
             pygame.draw.line(surface, shape.color, shape.points[0], shape.points[1], shape.lineWidth)
         elif isinstance(shape, Circle):
-            radius = int(shape.points[1][0])
+            # Calcular el radio usando la distancia euclidiana
+            x_center, y_center = shape.points[0]
+            radius = int(math.hypot(shape.points[1][0] - x_center, shape.points[1][1] - y_center))
             pygame.draw.circle(surface, shape.color, shape.points[0], radius, shape.lineWidth)
         elif isinstance(shape, Rectangle):
             x1, y1 = shape.points[0]
@@ -317,10 +323,10 @@ class Canvas:
         """Limpia el lienzo, eliminando todas las figuras."""
         self.shapes.clear()
 
-    def saveCanvas(self, filePath):
-        """Guarda el lienzo en disco (puede usar pygame.image.save o Numpy)."""
-        pass
-
-    def exportCanvas(self, filePath, format):
-        """Exporta el lienzo a un archivo en el formato especificado."""
-        pass
+    # La funcionalidad de guardar se implementa como guardado binario del arreglo de píxeles
+    def saveCanvasBinary(self, surface, filePath):
+        import pickle
+        import pygame.surfarray as surfarray
+        arr = surfarray.array3d(surface)
+        with open(filePath, "wb") as f:
+            pickle.dump(arr, f)

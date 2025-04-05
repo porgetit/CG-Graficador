@@ -53,17 +53,23 @@ class DrawingController:
                 self.menuView.updateMenuSelection("CURVE")
             elif event.key == pygame.K_b:
                 self.setAlgorithm("BASIC")
+                print("Algoritmo BASIC seleccionado")
             elif event.key == pygame.K_p:
                 self.setAlgorithm("PYGAME")
+                print("Algoritmo PYGAME seleccionado")
             elif event.key == pygame.K_s:
-                pygame.image.save(self.canvasView.surface, "canvas.png")
+                # Guardar canvas como archivo binario
+                self.canvas.saveCanvasBinary(self.canvasView.surface, "canvas.bin")
+                print("Canvas guardado en 'canvas.bin' (archivo binario)")
             elif event.key == pygame.K_e:
+                # Exportar canvas a imagen JPG
                 try:
                     import matplotlib.pyplot as plt
                     import numpy as np
                     arr = pygame.surfarray.array3d(self.canvasView.surface)
                     arr = np.transpose(arr, (1, 0, 2))
                     plt.imsave("canvas.jpg", arr)
+                    print("Canvas exportado a 'canvas.jpg' (imagen JPG)")
                 except ImportError:
                     print("Matplotlib o Numpy no están instalados.")
 
