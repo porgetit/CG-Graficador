@@ -18,8 +18,7 @@ if __name__ == "__main__":
     controller = DrawingController(canvas, canvasView)
     eventHandler = EventHandler(controller)
     toolbarView = ToolbarView(controller, screen, window_height, toolbar_width)
-    # Asignamos la toolbar a canvasView para que el controlador pueda actualizar el botón de color
-    canvasView.toolbar = toolbarView
+    canvasView.toolbar = toolbarView  # Para que el controlador actualice botones de color
 
     clock = pygame.time.Clock()
     running = True
@@ -44,3 +43,15 @@ if __name__ == "__main__":
 
     pygame.quit()
     sys.exit()
+
+
+"""
+BUG: El color del fondo no se tiene en cuenta al guardar la imagen.
+BUG: El trazado sobrepasa el área del lienza y termina pintando sobre la barra de herramientas.
+TODO: Mejorar la interfaz de la barra de herramientas para que sea más atractiva y fácil de usar.
+TODO: Implementar la herramienta de dibujo a mano alzada. Teniendo en cuenta el grosor del pincel y el color.
+TODO: Implementar la herramienta de borrado a mano alzada. Teniendo en cuenta el grosor.
+TODO: Implementar la herramienta de relleno. Tener en cuenta algún algoritmo de distribución para relleno de áreas.
+TODO: Implementar la herramienta de deshacer. Tener en cuenta el uso de una pila para almacenar los estados anteriores del canvas.
+TODO: Implementar la herramienta de rehacer. Tener en cuenta el uso de una pila para almacenar los estados anteriores del canvas.
+"""

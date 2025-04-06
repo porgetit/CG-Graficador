@@ -60,9 +60,7 @@ class Curve(Shape):
     """Figura: Curva."""
     def draw(self, surface):
         self.drawingAlgorithm.draw(self, surface)
-
-
-# NUEVAS FIGURAS DE BORRADO
+        
 
 class EraseArea(Shape):
     """Figura: Borrado por área (rectángulo relleno con color fondo)."""
@@ -93,8 +91,6 @@ class DrawingAlgorithm(ABC):
         pass
 
 
-# Algoritmos existentes
-
 class DDADrawingAlgorithm(DrawingAlgorithm):
     def draw(self, shape, surface):
         x1, y1 = shape.points[0]
@@ -103,13 +99,13 @@ class DDADrawingAlgorithm(DrawingAlgorithm):
         dy = y2 - y1
         steps = max(abs(dx), abs(dy))
         if steps == 0:
-            surface.set_at((round(x1), round(y1)), shape.color)
+            pygame.draw.circle(surface, shape.color, (round(x1), round(y1)), max(1, shape.lineWidth // 2))
             return
         xIncrement = dx / steps
         yIncrement = dy / steps
         x, y = x1, y1
         for _ in range(steps + 1):
-            surface.set_at((round(x), round(y)), shape.color)
+            pygame.draw.circle(surface, shape.color, (round(x), round(y)), max(1, shape.lineWidth // 2))
             x += xIncrement
             y += yIncrement
 
@@ -192,30 +188,30 @@ class BasicRectangleAlgorithm(DrawingAlgorithm):
     def draw(self, shape, surface):
         x1, y1 = shape.points[0]
         x2, y2 = shape.points[1]
-        # Se define el rectángulo según los dos puntos
         rect = pygame.Rect(min(x1, x2), min(y1, y2), abs(x2 - x1), abs(y2 - y1))
-        # Dibuja cada lado usando el método draw_line
-        self.draw_line(surface, (rect.left, rect.top), (rect.right, rect.top), shape.color)
-        self.draw_line(surface, (rect.right, rect.top), (rect.right, rect.bottom), shape.color)
-        self.draw_line(surface, (rect.right, rect.bottom), (rect.left, rect.bottom), shape.color)
-        self.draw_line(surface, (rect.left, rect.bottom), (rect.left, rect.top), shape.color)
+        thickness = shape.lineWidth
+        pygame.draw.line(surface, shape.color, (rect.left, rect.top), (rect.right, rect.top), thickness)
+        pygame.draw.line(surface, shape.color, (rect.right, rect.top), (rect.right, rect.bottom), thickness)
+        pygame.draw.line(surface, shape.color, (rect.right, rect.bottom), (rect.left, rect.bottom), thickness)
+        pygame.draw.line(surface, shape.color, (rect.left, rect.bottom), (rect.left, rect.top), thickness)
 
-    def draw_line(self, surface, start, end, color):
-        x1, y1 = start
-        x2, y2 = end
-        dx = x2 - x1
-        dy = y2 - y1
-        steps = max(abs(dx), abs(dy))
-        if steps == 0:
-            surface.set_at((round(x1), round(y1)), color)
-            return
-        xIncrement = dx / steps
-        yIncrement = dy / steps
-        x, y = x1, y1
-        for _ in range(steps + 1):
-            surface.set_at((round(x), round(y)), color)
-            x += xIncrement
-            y += yIncrement
+
+    # def draw_line(self, surface, start, end, color):
+    #     x1, y1 = start
+    #     x2, y2 = end
+    #     dx = x2 - x1
+    #     dy = y2 - y1
+    #     steps = max(abs(dx), abs(dy))
+    #     if steps == 0:
+    #         surface.set_at((round(x1), round(y1)), color)
+    #         return
+    #     xIncrement = dx / steps
+    #     yIncrement = dy / steps
+    #     x, y = x1, y1
+    #     for _ in range(steps + 1):
+    #         surface.set_at((round(x), round(y)), color)
+    #         x += xIncrement
+    #         y += yIncrement
 
 
 class BasicPolygonAlgorithm(DrawingAlgorithm):
@@ -223,26 +219,26 @@ class BasicPolygonAlgorithm(DrawingAlgorithm):
         points = shape.points
         if len(points) < 2:
             return
-        # Dibuja cada segmento entre puntos consecutivos
+        thickness = shape.lineWidth
         for i in range(len(points) - 1):
-            self.draw_line(surface, points[i], points[i+1], shape.color)
+            pygame.draw.line(surface, shape.color, points[i], points[i+1], thickness)
 
-    def draw_line(self, surface, start, end, color):
-        x1, y1 = start
-        x2, y2 = end
-        dx = x2 - x1
-        dy = y2 - y1
-        steps = max(abs(dx), abs(dy))
-        if steps == 0:
-            surface.set_at((round(x1), round(y1)), color)
-            return
-        x_inc = dx / steps
-        y_inc = dy / steps
-        x, y = x1, y1
-        for _ in range(steps + 1):
-            surface.set_at((round(x), round(y)), color)
-            x += x_inc
-            y += y_inc
+    # def draw_line(self, surface, start, end, color):
+    #     x1, y1 = start
+    #     x2, y2 = end
+    #     dx = x2 - x1
+    #     dy = y2 - y1
+    #     steps = max(abs(dx), abs(dy))
+    #     if steps == 0:
+    #         surface.set_at((round(x1), round(y1)), color)
+    #         return
+    #     x_inc = dx / steps
+    #     y_inc = dy / steps
+    #     x, y = x1, y1
+    #     for _ in range(steps + 1):
+    #         surface.set_at((round(x), round(y)), color)
+    #         x += x_inc
+    #         y += y_inc
 
 
 # Algoritmos para borrado (usando el color de fondo)
@@ -352,9 +348,60 @@ class Canvas:
     def saveCanvasBinary(self, surface, filePath):
         """
         Guarda el arreglo de píxeles del lienzo en un archivo binario.
+        (Método antiguo, se mantiene para compatibilidad)
         """
         import pickle
         import pygame.surfarray as surfarray
         arr = surfarray.array3d(surface)
         with open(filePath, "wb") as f:
             pickle.dump(arr, f)
+            
+    def to_json(self):
+        """
+        Serializa el canvas (la lista de figuras) a una cadena JSON.
+        Se guarda el tipo, puntos, color, grosor y el algoritmo (se usa "BASIC" por defecto).
+        """
+        shapes_data = []
+        for shape in self.shapes:
+            shape_type = None
+            if isinstance(shape, Line):
+                shape_type = "LINE"
+            elif isinstance(shape, Circle):
+                shape_type = "CIRCLE"
+            elif isinstance(shape, Rectangle):
+                shape_type = "RECTANGLE"
+            elif isinstance(shape, Polygon):
+                shape_type = "POLYGON"
+            elif isinstance(shape, Curve):
+                shape_type = "CURVE"
+            elif isinstance(shape, EraseArea):
+                shape_type = "ERASE_AREA"
+            # Se asume que para todas se usa "BASIC"
+            shape_data = {
+                "type": shape_type,
+                "points": shape.points,
+                "color": shape.color,
+                "lineWidth": shape.lineWidth,
+                "algorithmType": "BASIC"
+            }
+            shapes_data.append(shape_data)
+        import json
+        return json.dumps(shapes_data)
+
+    def load_json(self, json_str):
+        """
+        Deserializa una cadena JSON y reconstruye las figuras del canvas.
+        Se limpia el canvas actual y se recrean las figuras usando ShapeFactory.
+        """
+        import json
+        shapes_data = json.loads(json_str)
+        self.shapes.clear()
+        for data in shapes_data:
+            shape_type = data.get("type")
+            points = data.get("points")
+            color = tuple(data.get("color"))
+            lineWidth = data.get("lineWidth")
+            algorithmType = data.get("algorithmType", "BASIC")
+            # Se usa ShapeFactory para recrear la figura
+            shape = ShapeFactory.createShape(shape_type, points, color, lineWidth, algorithmType)
+            self.shapes.append(shape)

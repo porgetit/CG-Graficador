@@ -9,18 +9,24 @@ class Button:
         self.callback = callback
         self.font = font
         self.text = text
-        self.image = image  # Debe ser un objeto pygame.Surface o None
+        self.image = image  # Objeto pygame.Surface o None
         self.bg_color = bg_color
+
+    def get_contrast_color(self):
+        r, g, b = self.bg_color
+        brightness = 0.299 * r + 0.587 * g + 0.114 * b
+        return (255, 255, 255) if brightness < 128 else (0, 0, 0)
 
     def draw(self, surface):
         pygame.draw.rect(surface, self.bg_color, self.rect)
         pygame.draw.rect(surface, (0, 0, 0), self.rect, 1)
         if self.image:
-            # Centra la imagen en el botón
             img_rect = self.image.get_rect(center=self.rect.center)
             surface.blit(self.image, img_rect)
         elif self.text:
-            text_surf = self.font.render(self.text, True, (0, 0, 0))
+            # Ajusta el color del texto según el contraste
+            text_color = self.get_contrast_color()
+            text_surf = self.font.render(self.text, True, text_color)
             text_rect = text_surf.get_rect(center=self.rect.center)
             surface.blit(text_surf, text_rect)
 
@@ -28,22 +34,20 @@ class Button:
         return self.rect.collidepoint(pos)
 
 
-# --- Barra de herramientas lateral con iconos ---
+# --- Barra de herramientas lateral con iconos y botones de archivo ---
 class ToolbarView:
     """
-    Barra de herramientas ubicada en el lateral izquierdo.
-    Se usan imágenes (PNG) para representar las herramientas, y se agregan
-    botones para seleccionar el color del pincel y del fondo.
+    Barra lateral ubicada en el lado izquierdo.
+    Incluye secciones para herramientas, algoritmo, colores y botones de archivo.
     """
     def __init__(self, controller, surface, height, toolbar_width=100):
         self.controller = controller
         self.surface = surface
-        self.toolbar_width = toolbar_width  # Ancho fijo para la barra lateral
+        self.toolbar_width = toolbar_width  # Ancho fijo
         self.height = height  # Altura total de la ventana
         self.font = pygame.font.SysFont(None, 24)
         # Ruta base para los iconos
         icons_path = os.path.join(os.path.dirname(__file__), "icons")
-        # Cargamos los iconos para herramientas
         self.icons = {
             "LINE": pygame.image.load(os.path.join(icons_path, "line.png")),
             "CIRCLE": pygame.image.load(os.path.join(icons_path, "circle.png")),
@@ -52,21 +56,28 @@ class ToolbarView:
             "CURVE": pygame.image.load(os.path.join(icons_path, "curve.png")),
             "ERASE_AREA": pygame.image.load(os.path.join(icons_path, "erase.png"))
         }
-        # Escalamos los iconos al tamaño deseado (por ejemplo, 24x24)
         for key in self.icons:
             self.icons[key] = pygame.transform.scale(self.icons[key], (24, 24))
-        self.buttons = []
+        self.buttons = []  # Lista completa de botones
+        self.tool_buttons = {}  # Botones de herramientas
+        self.algo_buttons = {}  # Botones de algoritmo
+        self.file_buttons = {}  # Botones para Save/Open/Export
+        self.brush_color_btn = None
+        self.canvas_color_btn = None
         self.createButtons()
 
     def createButtons(self):
         self.buttons = []
+        self.tool_buttons = {}
+        self.algo_buttons = {}
+        self.file_buttons = {}
         margin = 5
         btn_width = self.toolbar_width - 2 * margin
         btn_height = 30
         x = margin
         y = margin
 
-        # Sección de herramientas: usamos iconos
+        # Sección de herramientas (iconos)
         tools = ["LINE", "CIRCLE", "RECTANGLE", "POLYGON", "CURVE", "ERASE_AREA"]
         for tool in tools:
             img = self.icons.get(tool)
@@ -74,49 +85,75 @@ class ToolbarView:
                          lambda t=tool: self.controller.setTool(t),
                          self.font, image=img)
             self.buttons.append(btn)
+            self.tool_buttons[tool] = btn
             y += btn_height + margin
 
-        y += margin  # Espacio entre secciones
+        y += margin
 
-        # Sección de algoritmo: usamos botones con letras ("B" para BASIC, "P" para PYGAME)
+        # Sección de algoritmo: "B" para BASIC y "P" para PYGAME
         algos = [("BASIC", "B"), ("PYGAME", "P")]
         for algo, label in algos:
             btn = Button((x, y, btn_width, btn_height),
                          lambda a=algo: self.controller.setAlgorithm(a),
                          self.font, text=label)
             self.buttons.append(btn)
+            self.algo_buttons[algo] = btn
             y += btn_height + margin
 
         y += margin
 
-        # Botón para color del pincel: el botón muestra el color actual del pincel.
+        # Botón para color del pincel: muestra el texto "Pincel" y su fondo es el color actual
         btn = Button((x, y, btn_width, btn_height),
-                     lambda: self.controller.setBrushColor(),  # Se invoca sin color para abrir el modal
+                     lambda: self.controller.setBrushColor(),
                      self.font, text="Pincel", bg_color=self.controller.current_color)
-        self.brush_color_btn = btn  # Guardamos la referencia para actualizar su color
         self.buttons.append(btn)
+        self.brush_color_btn = btn
         y += btn_height + margin
 
         # Botón para color del lienzo (fondo)
         btn = Button((x, y, btn_width, btn_height),
                      lambda: self.controller.setCanvasColor(),
                      self.font, text="Fondo", bg_color=self.controller.canvas.background_color)
-        self.canvas_color_btn = btn  # Guardamos la referencia para actualizar su color
         self.buttons.append(btn)
+        self.canvas_color_btn = btn
         y += btn_height + margin
 
+        y += margin
+
+        # Sección de botones de archivo: Guardar, Abrir, Exportar
+        file_actions = [("Guardar", "S"), ("Abrir", "O"), ("Exportar", "E")]
+        for action, label in file_actions:
+            btn = Button((x, y, btn_width, btn_height),
+                         lambda act=action: self.controller.fileAction(act),
+                         self.font, text=label)
+            self.buttons.append(btn)
+            self.file_buttons[action] = btn
+            y += btn_height + margin
+
+    def disableAlgorithmButton(self, algo):
+        if algo in self.algo_buttons:
+            self.algo_buttons[algo].bg_color = (150, 150, 150)
+            self.algo_buttons[algo].callback = lambda: None
+
+    def enableAlgorithmButton(self, algo):
+        if algo in self.algo_buttons:
+            self.algo_buttons[algo].bg_color = (200, 200, 200)
+            self.algo_buttons[algo].callback = lambda a=algo: self.controller.setAlgorithm(a)
+
     def updateLayout(self, new_height):
-        """
-        Actualiza la altura de la barra según la nueva altura de la ventana.
-        """
         self.height = new_height
         self.createButtons()
 
     def draw(self):
-        # Dibuja el fondo de la barra lateral
+        # Fondo de la barra lateral
         pygame.draw.rect(self.surface, (180, 180, 180), (0, 0, self.toolbar_width, self.height))
+        # Dibuja todos los botones
         for btn in self.buttons:
             btn.draw(self.surface)
+        # Resalta el botón de la herramienta seleccionada
+        for tool, btn in self.tool_buttons.items():
+            if tool == self.controller.currentTool:
+                pygame.draw.rect(self.surface, (255, 0, 0), btn.rect, 3)
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -127,13 +164,8 @@ class ToolbarView:
                         return True
         return False
 
-
 # --- Vista del lienzo ---
 class CanvasView:
-    """
-    Vista encargada de renderizar el lienzo y sus figuras.
-    Se ajusta automáticamente según el tamaño de la ventana y el área reservada para la barra lateral.
-    """
     def __init__(self, canvas, surface, toolbar_width):
         self.canvas = canvas
         self.surface = surface
@@ -156,16 +188,16 @@ class CanvasView:
         self.render()
 
 
-# --- Modal de selección de color (ColorPickerModal) ---
+# --- Modal de selección de color ---
 class ColorPickerModal:
     """
     Modal emergente para seleccionar un color mediante tres sliders (R, G, B).
-    Muestra una vista previa del color actual, y botones Cancelar y Aceptar.
+    Muestra una vista previa del color, y botones Cancelar y Aceptar.
     """
     def __init__(self, surface, initial_color=(255, 255, 255), prompt="Elija un color"):
         self.surface = surface
         self.initial_color = initial_color
-        self.current_color = list(initial_color)  # [r, g, b]
+        self.current_color = list(initial_color)
         self.prompt = prompt
         self.font = pygame.font.SysFont(None, 28)
         self.width = 400
@@ -188,7 +220,7 @@ class ColorPickerModal:
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = event.pos
-            # Verificar si se hace clic en alguno de los sliders:
+            # Sliders:
             for color_name, slider_y in zip(['r', 'g', 'b'],
                                               [self.slider_y_start, self.slider_y_start + self.slider_gap, self.slider_y_start + 2 * self.slider_gap]):
                 slider_rect = pygame.Rect(self.slider_x, slider_y, self.slider_width, self.slider_height)
@@ -202,11 +234,9 @@ class ColorPickerModal:
                         self.current_color[1] = val
                     elif color_name == 'b':
                         self.current_color[2] = val
-            # Verificar si se hace clic en el botón Cancelar:
             if self.cancel_rect.collidepoint(event.pos):
                 self.result = None
                 self.running = False
-            # Verificar si se hace clic en el botón Aceptar:
             if self.accept_rect.collidepoint(event.pos):
                 self.result = tuple(self.current_color)
                 self.running = False
@@ -225,18 +255,16 @@ class ColorPickerModal:
                     self.current_color[2] = val
 
     def draw(self):
-        # Dibuja un overlay semi-transparente
         overlay = pygame.Surface(self.surface.get_size(), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 180))
         self.surface.blit(overlay, (0, 0))
-        # Modal
         modal_surface = pygame.Surface((self.width, self.height))
         modal_surface.fill((240, 240, 240))
         pygame.draw.rect(modal_surface, (0, 0, 0), modal_surface.get_rect(), 2)
         prompt_surf = self.font.render(self.prompt, True, (0, 0, 0))
         prompt_rect = prompt_surf.get_rect(center=(self.width // 2, 30))
         modal_surface.blit(prompt_surf, prompt_rect)
-        # Dibujar sliders para R, G, B
+        # Sliders:
         slider_labels = ['R', 'G', 'B']
         for i, label in enumerate(slider_labels):
             y_pos = 80 + i * self.slider_gap
@@ -249,23 +277,21 @@ class ColorPickerModal:
             pygame.draw.rect(modal_surface, (50, 50, 50), handle_rect)
             label_surf = self.font.render(label, True, (0, 0, 0))
             modal_surface.blit(label_surf, (10, y_pos))
-        # Vista previa del color seleccionado
+        # Vista previa:
         preview_rect = pygame.Rect(self.width - 70, 50, 50, 50)
         pygame.draw.rect(modal_surface, tuple(self.current_color), preview_rect)
         pygame.draw.rect(modal_surface, (0, 0, 0), preview_rect, 2)
-        # Botón Cancelar
+        # Botones Cancelar y Aceptar:
         pygame.draw.rect(modal_surface, (180, 180, 180), (50, self.height - 60, 100, 30))
         pygame.draw.rect(modal_surface, (0, 0, 0), (50, self.height - 60, 100, 30), 2)
         cancel_text = self.font.render("Cancelar", True, (0, 0, 0))
         cancel_rect = cancel_text.get_rect(center=(50 + 50, self.height - 60 + 15))
         modal_surface.blit(cancel_text, cancel_rect)
-        # Botón Aceptar
         pygame.draw.rect(modal_surface, (180, 180, 180), (self.width - 150, self.height - 60, 100, 30))
         pygame.draw.rect(modal_surface, (0, 0, 0), (self.width - 150, self.height - 60, 100, 30), 2)
         accept_text = self.font.render("Aceptar", True, (0, 0, 0))
         accept_rect = accept_text.get_rect(center=(self.width - 150 + 50, self.height - 60 + 15))
         modal_surface.blit(accept_text, accept_rect)
-        # Colocar el modal en la superficie
         self.surface.blit(modal_surface, (self.rect.x, self.rect.y))
         pygame.display.flip()
 
