@@ -33,14 +33,14 @@ class DrawingController:
         if self.currentTool in ["LINE", "CIRCLE", "RECTANGLE", "ERASE_AREA"]:
             if len(self.tempPoints) >= 1:
                 points = [self.tempPoints[0], pos]
-                color = self.canvas.background_color if self.currentTool == "ERASE_AREA" else self.current_color
+                color = self.canvas.background_color if self.currentTool.startswith("ERASE") else self.current_color
                 self.createShapeFromInput(points, color, self.currentLineWidth)
-        elif self.currentTool in ["POLYGON"]:
+        elif self.currentTool == "POLYGON":
             if len(self.tempPoints) >= 2:
                 if self.tempPoints[0] != self.tempPoints[-1]:
                     self.tempPoints.append(self.tempPoints[0])
                 self.createShapeFromInput(self.tempPoints, self.current_color, self.currentLineWidth)
-        elif self.currentTool in ["CURVE"]:
+        elif self.currentTool == "CURVE":
             if len(self.tempPoints) >= 2:
                 points = [self.tempPoints[0], self.tempPoints[1], pos]
                 self.createShapeFromInput(points, self.current_color, self.currentLineWidth)

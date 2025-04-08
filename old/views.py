@@ -181,7 +181,7 @@ class CanvasView:
     def render(self):
         pygame.draw.rect(self.surface, self.canvas.background_color, self.canvas_rect)
         for shape in self.canvas.shapes:
-            shape.draw(self.surface)
+            shape.drawingAlgorithm.draw(shape, self.surface, self.canvas_rect)  # Pasar canvas_rect
         pygame.display.flip()
 
     def update(self):
