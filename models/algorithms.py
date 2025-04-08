@@ -1,12 +1,20 @@
 import pygame
 import math
 from models.shapes import Circle, Line, Rectangle, Polygon, Curve
+from abc import ABC, abstractmethod
 
-class DrawingAlgorithm:
+class DrawingAlgorithm(ABC):
+    def __init__(self, algorithmType = "BASIC"):
+        self.algorithmType = algorithmType  # "BASIC" o "PYGAME"
+
+    @abstractmethod
     def draw(self, shape, surface, canvas_rect):
-        raise NotImplementedError
+        pass
 
 class DDADrawingAlgorithm(DrawingAlgorithm):
+    def __init__(self):
+        super().__init__("BASIC")
+
     def draw(self, shape, surface, canvas_rect):
         x1, y1 = shape.points[0]
         x2, y2 = shape.points[1]
@@ -27,6 +35,9 @@ class DDADrawingAlgorithm(DrawingAlgorithm):
             y += yIncrement
 
 class MidpointCircleAlgorithm(DrawingAlgorithm):
+    def __init__(self):
+        super().__init__("BASIC")
+
     def draw(self, shape, surface, canvas_rect):
         x_center, y_center = shape.points[0]
         radius = int(math.hypot(shape.points[1][0] - x_center, shape.points[1][1] - y_center))
@@ -73,6 +84,9 @@ class BezierCurveAlgorithm(DrawingAlgorithm):
             print(f"Error al dibujar la curva Bézier: {e}")
 
 class PygameDrawingAlgorithm(DrawingAlgorithm):
+    def __init__(self):
+        super().__init__("PYGAME")
+
     def draw(self, shape, surface, canvas_rect):
         if isinstance(shape, Circle):
             x_center, y_center = shape.points[0]
@@ -80,7 +94,7 @@ class PygameDrawingAlgorithm(DrawingAlgorithm):
             x = 0
             y = radius
             d = 1 - radius
-            self.draw_circle_points(surface, x_center, y_center, x, y, shape.color, canvas_rect)
+            self.draw_circle_points(surface, x_center, y_center, x, y, shape.color, shape.lineWidth, canvas_rect)
             while x < y:
                 if d < 0:
                     d = d + 2 * x + 3
@@ -88,7 +102,7 @@ class PygameDrawingAlgorithm(DrawingAlgorithm):
                     d = d + 2 * (x - y) + 5
                     y -= 1
                 x += 1
-                self.draw_circle_points(surface, x_center, y_center, x, y, shape.color, canvas_rect)
+                self.draw_circle_points(surface, x_center, y_center, x, y, shape.color, shape.lineWidth, canvas_rect)
         else:
             if isinstance(shape, Line):
                 x1, y1 = shape.points[0]
@@ -114,14 +128,15 @@ class PygameDrawingAlgorithm(DrawingAlgorithm):
                     if len(curve_points) > 1:
                         pygame.draw.lines(surface, shape.color, False, curve_points, shape.lineWidth)
 
-    def draw_circle_points(self, surface, xc, yc, x, y, color, canvas_rect):
+    def draw_circle_points(self, surface, xc, yc, x, y, color, lineWidth, canvas_rect):
+        # Calcula los puntos del círculo y verifica si están dentro del área del canvas
         points = [
             (xc + x, yc + y), (xc - x, yc + y), (xc + x, yc - y), (xc - x, yc - y),
             (xc + y, yc + x), (xc - y, yc + x), (xc + y, yc - x), (xc - y, yc - x)
         ]
         for px, py in points:
-            if canvas_rect.collidepoint(px, py):
-                surface.set_at((px, py), color)
+            if canvas_rect.collidepoint(px, py):  # Verifica si el punto está dentro del área del canvas
+                pygame.draw.circle(surface, color, (px, py), max(1, lineWidth // 2))
 
 class BasicRectangleAlgorithm(DrawingAlgorithm):
     def draw(self, shape, surface, canvas_rect):

@@ -37,7 +37,7 @@ class Canvas:
                 "points": shape.points,
                 "color": shape.color,
                 "lineWidth": shape.lineWidth,
-                "algorithmType": "BASIC"
+                "algorithmType": shape.drawingAlgorithm.algorithmType
             }
             shapes_data.append(shape_data)
         canvas_data = {
@@ -56,6 +56,6 @@ class Canvas:
             points = data.get("points")
             color = tuple(data.get("color"))
             lineWidth = data.get("lineWidth")
-            algorithmType = data.get("algorithmType", "BASIC")
+            algorithmType = data.get("algorithmType")
             shape = ShapeFactory.createShape(shape_type, points, color, lineWidth, algorithmType)
             self.shapes.append(shape)

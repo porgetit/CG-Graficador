@@ -41,8 +41,6 @@ if __name__ == "__main__":
 
 
 """
-BUG: El trazado sobrepasa el área del lienzo y termina pintando sobre la barra de herramientas.
-BUG: Al guardar, las curvas y los circulos no conservan información del algoritmo de dibujo y el grosor.
 TODO: Mejorar la interfaz de la barra de herramientas para que sea más atractiva y fácil de usar.
 TODO: Implementar la herramienta de dibujo a mano alzada. Teniendo en cuenta el grosor del pincel y el color.
 TODO: Implementar la herramienta de borrado a mano alzada. Teniendo en cuenta el grosor.

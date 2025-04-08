@@ -18,7 +18,7 @@ class Line(Shape):
     def draw(self, surface, canvas_rect):
         self.drawingAlgorithm.draw(self, surface, canvas_rect)
 
-class Circle(Shape):
+class Circle(Shape): # NOTE: Circle no imprime los puntos teniendo en cuenta el lineWidth si se usa el algoritmo básico. No es un bug, es una limitación del algoritmo.
     def draw(self, surface, canvas_rect):
         self.drawingAlgorithm.draw(self, surface, canvas_rect)
 
