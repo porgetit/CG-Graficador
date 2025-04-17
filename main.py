@@ -7,8 +7,8 @@ from controllers.super_controller import SuperController
 
 pygame.init()
 
-window_width, window_height = 800, 620
-toolbar_width = 80
+window_width, window_height = 800, 640
+toolbar_width = 60
 screen = pygame.display.set_mode((window_width, window_height), pygame.RESIZABLE)
 pygame.display.set_caption("Graficador")
 
@@ -28,6 +28,9 @@ toolbarView = ToolbarView(
     window_height,
     toolbar_width
 )
+
+# Asegúrate de pasar toolbarView al DrawingController
+superController.drawingController.toolbarView = toolbarView
 
 clock = pygame.time.Clock()
 running = True

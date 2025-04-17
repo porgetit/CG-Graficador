@@ -5,32 +5,61 @@ class Button:
     """
     Clase que representa un botón en la interfaz gráfica.
     """
-    def __init__(self, rect, callback, font, text=None, image=None, bg_color=(200, 200, 200)):
+    def __init__(self, rect, callback, font, text=None, image=None, alt_image=None, bg_color=(200, 200, 200)):
+        """
+        Inicializa un botón con sus propiedades.
+
+        Args:
+            rect (tuple): Coordenadas y tamaño del botón (x, y, ancho, alto).
+            callback (function): Función que se ejecutará al presionar el botón.
+            font (pygame.font.Font): Fuente para el texto del botón.
+            text (str, opcional): Texto que se mostrará en el botón.
+            image (pygame.Surface, opcional): Imagen principal que se mostrará en el botón.
+            alt_image (pygame.Surface, opcional): Imagen alternativa (por ejemplo, en blanco).
+            bg_color (tuple, opcional): Color de fondo del botón (RGB). Por defecto es gris claro.
+        """
         self.rect = pygame.Rect(rect)
         self.callback = callback
         self.font = font
         self.text = text
         self.image = image
+        self.alt_image = alt_image  # Imagen alternativa (en blanco)
         self.bg_color = bg_color
 
     def get_contrast_color(self):
+        """
+        Calcula un color de contraste (blanco o negro) basado en el brillo del color de fondo.
+
+        Returns:
+            tuple: Color de contraste en formato RGB.
+        """
         r, g, b = self.bg_color
         brightness = 0.299 * r + 0.587 * g + 0.114 * b
         return (255, 255, 255) if brightness < 128 else (0, 0, 0)
 
     def draw(self, surface):
-        # Sombra
+        """
+        Dibuja el botón en la superficie proporcionada.
+
+        Args:
+            surface (pygame.Surface): Superficie donde se dibujará el botón.
+        """
+        # Dibujar sombra
         shadow_rect = self.rect.move(3, 3)
         pygame.draw.rect(surface, (50, 50, 50), shadow_rect, border_radius=10)
 
-        # Fondo del botón
+        # Dibujar fondo del botón
         pygame.draw.rect(surface, self.bg_color, self.rect, border_radius=10)
 
-        # Borde del botón
+        # Dibujar borde del botón
         pygame.draw.rect(surface, (0, 0, 0), self.rect, 2, border_radius=10)
 
-        # Imagen o texto
-        if self.image:
+        # Seleccionar imagen según el brillo del fondo
+        if self.image and self.alt_image:
+            img = self.alt_image if self.get_contrast_color() == (255, 255, 255) else self.image
+            img_rect = img.get_rect(center=self.rect.center)
+            surface.blit(img, img_rect)
+        elif self.image:
             img_rect = self.image.get_rect(center=self.rect.center)
             surface.blit(self.image, img_rect)
         elif self.text:
@@ -40,6 +69,15 @@ class Button:
             surface.blit(text_surf, text_rect)
 
     def is_clicked(self, pos):
+        """
+        Verifica si el botón fue presionado.
+
+        Args:
+            pos (tuple): Coordenadas del clic del mouse.
+
+        Returns:
+            bool: True si el clic ocurrió dentro del botón, False en caso contrario.
+        """
         return self.rect.collidepoint(pos)
 
 
@@ -86,7 +124,9 @@ class ToolbarView:
             "CURVE": pygame.image.load(os.path.join(icons_path, "curve.png")),
             "ERASE_AREA": pygame.image.load(os.path.join(icons_path, "erase.png")),
             "BRUSH": pygame.image.load(os.path.join(icons_path, "brush.png")),
+            "BRUSH_WHITE": pygame.image.load(os.path.join(icons_path, "brush_white.png")),
             "CANVAS": pygame.image.load(os.path.join(icons_path, "canvas.png")),
+            "CANVAS_WHITE": pygame.image.load(os.path.join(icons_path, "canvas_white.png")),
             "SAVE": pygame.image.load(os.path.join(icons_path, "save.png")),
             "OPEN": pygame.image.load(os.path.join(icons_path, "open.png")),
             "EXPORT": pygame.image.load(os.path.join(icons_path, "export.png")),
@@ -142,14 +182,20 @@ class ToolbarView:
         # Botón para color del pincel
         btn = Button((x, y, btn_width, btn_height),
                      lambda: self.controller.setBrushColor(),
-                     self.font, image=self.icons["BRUSH"], bg_color=self.controller.current_color)
+                     self.font,
+                     image=self.icons["BRUSH"],
+                     alt_image=self.icons["BRUSH_WHITE"],
+                     bg_color=self.controller.current_color)
         self.buttons.append(btn)
         self.brush_color_btn = btn
         y += btn_height + margin
         # Botón para color del lienzo
         btn = Button((x, y, btn_width, btn_height),
                      lambda: self.controller.setCanvasColor(),
-                     self.font, image=self.icons["CANVAS"], bg_color=self.controller.canvas.background_color)
+                     self.font,
+                     image=self.icons["CANVAS"],
+                     alt_image=self.icons["CANVAS_WHITE"],
+                     bg_color=self.controller.canvas.background_color)
         self.buttons.append(btn)
         self.canvas_color_btn = btn
         y += btn_height + margin

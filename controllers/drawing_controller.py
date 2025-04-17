@@ -5,9 +5,18 @@ from models.shapes import ShapeFactory
 from views.color_picker_modal import tk_color_picker
 
 class DrawingController:
-    def __init__(self, canvas, canvasView):
+    def __init__(self, canvas, canvasView, toolbarView=None):
+        """
+        Inicializa el controlador de dibujo.
+
+        Args:
+            canvas (Canvas): Instancia del modelo Canvas.
+            canvasView (CanvasView): Instancia de la vista del canvas.
+            toolbarView (ToolbarView, opcional): Instancia de la barra de herramientas.
+        """
         self.canvas = canvas
         self.canvasView = canvasView
+        self.toolbarView = toolbarView  # Referencia a ToolbarView
         self.currentTool = "LINE"
         self.currentAlgorithm = "BASIC"
         self.current_color = (0, 0, 0)
@@ -68,29 +77,26 @@ class DrawingController:
         self.currentAlgorithm = algorithm
         print(f"Algoritmo seleccionado: {algorithm}")
 
-    def setBrushColor(self, color=None):
-        if color is None:
-            new_color, new_thickness = tk_color_picker(self.current_color, self.currentLineWidth, "Elija color de pincel y grosor", show_thickness=True)
-            if new_color is not None:
-                self.current_color = new_color
-                self.currentLineWidth = new_thickness
-        else:
-            self.current_color = color
-        print(f"Color del pincel seleccionado: {self.current_color}, grosor: {self.currentLineWidth}")
-        if hasattr(self.canvasView, 'toolbar'):
-            self.canvasView.toolbar.brush_color_btn.bg_color = self.current_color
+    def setBrushColor(self):
+        """
+        Abre el selector de color para el pincel y actualiza el color seleccionado.
+        """
+        new_color = self.openColorPicker(self.current_color)
+        if new_color:
+            self.current_color = new_color
+            # Actualizar el color de fondo del botón de pincel
+            self.toolbarView.brush_color_btn.bg_color = new_color
 
-    def setCanvasColor(self, color=None):
-        if color is None:
-            new_color, _ = tk_color_picker(self.canvas.background_color, self.currentLineWidth, "Elija color de lienzo", show_thickness=False)
-            if new_color is not None:
-                self.canvas.background_color = new_color
-        else:
-            self.canvas.background_color = color
-        print(f"Color del lienzo seleccionado: {self.canvas.background_color}")
-        if hasattr(self.canvasView, 'toolbar'):
-            self.canvasView.toolbar.canvas_color_btn.bg_color = self.canvas.background_color
-        self.canvasView.render()
+    def setCanvasColor(self):
+        """
+        Abre el selector de color para el lienzo y actualiza el color seleccionado.
+        """
+        new_color = self.openColorPicker(self.canvas.background_color)
+        if new_color:
+            self.canvas.background_color = new_color
+            # Actualizar el color de fondo del botón de lienzo
+            self.toolbarView.canvas_color_btn.bg_color = new_color
+            self.canvasView.render()
 
     def saveCanvas(self):
         root = tk.Tk()
@@ -155,3 +161,16 @@ class DrawingController:
             self.openCanvas()
         elif action == "Exportar":
             self.exportCanvas()
+
+    def openColorPicker(self, initial_color):
+        """
+        Abre un selector de color y devuelve el color seleccionado.
+
+        Args:
+            initial_color (tuple): Color inicial que se mostrará en el selector.
+
+        Returns:
+            tuple: Color seleccionado en formato RGB, o None si se cancela.
+        """
+        new_color, _ = tk_color_picker(initial_color, self.currentLineWidth, "Seleccione un color", show_thickness=False)
+        return new_color
