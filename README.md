@@ -1,162 +1,148 @@
-# Documento de Requisitos para el Graficador
+# Graficador ✏️🖼️
 
-## I. Introducción
-
-Este documento define los requisitos funcionales y no funcionales para el desarrollo de una aplicación de dibujo (graficador) utilizando PyGame. La herramienta permitirá al usuario crear figuras básicas mediante interacciones con el ratón, ofreciendo la opción de elegir entre algoritmos de trazado implementados manualmente (básicos) y métodos propios de PyGame.
-
-## II. Requisitos Funcionales
-
-### 1. Dibujo de Líneas
-- **RF1.1**: El sistema debe permitir dibujar líneas utilizando dos puntos de referencia.
-- **RF1.2**: Los puntos de referencia se obtendrán a partir de la posición del ratón y el clic derecho.
-- **RF1.3**: El usuario podrá configurar el algoritmo de trazado para las líneas, pudiendo elegir entre:
-  - **Algoritmo básico**: **DDA (Digital Differential Analyzer)**.
-  - **Método propio de PyGame**.
-
-### 2. Dibujo de Círculos
-- **RF2.1**: El sistema debe permitir dibujar círculos utilizando dos puntos de referencia: uno para definir el centro y otro para definir el radio.
-- **RF2.2**: Los puntos de referencia se registrarán a partir de la posición del ratón y el clic derecho.
-- **RF2.3**: Se deberá configurar el algoritmo de trazado para los círculos, pudiendo elegir entre:
-  - **Algoritmo básico**: **Midpoint Circle Algorithm** o **Bresenham Circle Algorithm** (se recomienda el primero por su simplicidad y eficiencia en enteros).
-  - **Método propio de PyGame**.
-
-### 3. Dibujo de Rectángulos
-- **RF3.1**: El sistema debe permitir dibujar rectángulos utilizando dos puntos de referencia que correspondan a dos vértices opuestos.
-- **RF3.2**: Los puntos de referencia se obtendrán a partir de la posición del ratón y el clic derecho.
-- **RF3.3**: Se deberá configurar el algoritmo de trazado para los rectángulos, pudiendo elegir entre:
-  - **Algoritmo básico**: Implementación mediante la conexión de cuatro líneas, cada una trazada con **DDA** o **Bresenham**.
-  - **Método propio de PyGame**.
-
-### 4. Dibujo de Polígonos
-- **RF4.1**: El sistema debe permitir dibujar polígonos a partir de una secuencia de puntos de referencia.
-- **RF4.2**: La interacción para registrar los puntos será la siguiente:
-  - Cada punto se marca con un clic izquierdo.
-  - El último punto se define mediante un clic derecho.
-  - Si el último punto no coincide con el primero, el sistema trazará una línea que cierre la figura.
-- **RF4.3**: Se deberá configurar el algoritmo de trazado para los polígonos, pudiendo elegir entre:
-  - **Algoritmo básico**: Trazado de cada segmento entre puntos consecutivos utilizando un algoritmo de línea básico (DDA o Bresenham), conectando el último punto con el primero en caso necesario.
-  - **Método propio de PyGame**.
-
-### 5. Dibujo de Curvas
-- **RF5.1**: El sistema debe permitir dibujar curvas utilizando tres puntos de referencia.
-- **RF5.2**: Los puntos de referencia se registrarán mediante la posición del ratón:
-  - Los dos primeros puntos se marcarán con clic izquierdo.
-  - El tercer punto se confirmará con clic derecho.
-- **RF5.3**: Se deberá configurar el algoritmo de trazado para las curvas, pudiendo elegir entre:
-  - **Algoritmo básico**: Implementación de una curva **cuadrática de Bézier**, la cual permite emular un comportamiento vectorial mediante tres puntos de control.  
-  - **Método propio de PyGame**.
-
-### 6. Menús y Configuraciones
-- **RF6.1**: Todas las configuraciones se agruparán en un menú desplegable ubicado en la parte superior de la ventana principal.
-- **RF6.2**: Cada tipo de figura (línea, círculo, rectángulo, polígono y curva) dispondrá de un submenú de configuración para seleccionar el algoritmo de trazado.
-
-### 7. Área de Selección de Herramientas
-- **RF7.1**: Se implementará un área de selección de herramientas en la parte superior de la ventana, donde cada herramienta se representará mediante un ícono o figura que refleje su función.
-- **RF7.2**: El área de herramientas deberá permitir la selección de:
-  - Las figuras mencionadas en los puntos 1 a 5.
-  - Funciones adicionales: borrado por área, borrado por píxel, deshacer, rehacer y cambio del color de fondo del lienzo.
-- **RF7.3**: Se recomienda construir los botones de manera personalizada, aunque es admisible el uso de botones propios de PyGame si fuera necesario.
-
-### 8. Interfaz Gráfica
-- **RF8.1**: La interfaz gráfica deberá ser *responsive*, adaptándose de forma adecuada a cambios en la altura y anchura de la ventana.
-
-### 9. Guardado de Lienzo
-- **RF9.1**: El sistema debe permitir guardar el lienzo en disco.
-- **RF9.2**: Se recomienda el uso de Numpy para manipular y almacenar la matriz de píxeles del lienzo.
-
-### 10. Exportación del Lienzo
-- **RF10.1**: El sistema debe permitir exportar el lienzo en formato JPG.
-- **RF10.2**: Se recomienda utilizar MatPlotLib para realizar la exportación.
-
-### 11. Implementación de Funciones Básicas
-- **RF11.1**: Las funciones básicas de dibujo (los algoritmos básicos) deben implementarse manualmente, sin recurrir a funcionalidades preexistentes en PyGame. Esto asegura que la opción de "algoritmo básico" sea una implementación propia.
+> Un editor 2D académico escrito en **Python 3 + PyGame** que demuestra — de forma interactiva — los algoritmos clásicos de rasterizado (DDA, midpoint circle, Bézier discreta…) frente a las primitivas nativas de PyGame.
+>   
+> **Autor:** Kevin Esguerra Cardona — `Porgetit`
 
 ---
 
-## III. Requisitos No Funcionales
+## Índice
 
-- **RNF1**: La aplicación deberá ser intuitiva y responder de manera fluida a las interacciones del usuario.
-- **RNF2**: La arquitectura del sistema debe ser modular, facilitando la incorporación o modificación de algoritmos de trazado sin afectar la funcionalidad global.
-- **RNF3**: El código fuente deberá estar bien documentado y seguir las buenas prácticas de programación para garantizar su mantenibilidad.
+1. [Objetivos](#objetivos)  
+2. [Características](#características)  
+3. [Instalación](#instalación)  
+4. [Puesta en marcha](#puesta-en-marcha)  
+5. [Guía de usuario](#guía-de-usuario)  
+   - 5.1&nbsp;[Interfaz general](#51-interfaz-general)  
+   - 5.2&nbsp;[Barra de herramientas](#52-barra-de-herramientas)  
+   - 5.3&nbsp;[Flujo de dibujo](#53-flujo-de-dibujo)  
+   - 5.4&nbsp;[Atajos de teclado](#54-atajos-de-teclado)  
+6. [Estructura del código](#estructura-del-código)  
+7. [Hoja de ruta](#hoja-de-ruta)  
+8. [Créditos](#créditos)  
 
 ---
 
-## IV. Métodos de Dibujo con PyGame
+## Objetivos
 
-### 1. Líneas
-- **Método de PyGame**:  
-  Se utiliza la función:  
-  ```python
-  pygame.draw.line(surface, color, start_pos, end_pos, width)
-  ```  
-  - **Parámetros**:
-    - `surface`: Superficie donde se dibuja.
-    - `color`: Color de la línea.
-    - `start_pos`: Coordenada inicial (x, y).
-    - `end_pos`: Coordenada final (x, y).
-    - `width`: Grosor de la línea.
+* Comparar visualmente **algoritmos manuales** de rasterizado con el motor interno de PyGame.  
+* Practicar el patrón de diseño **Modelo–Vista–Controlador (MVC)**.  
+* Servir de base para futuras extensiones (herramientas de transformación, capas, etc.).
 
-### 2. Círculos
-- **Método de PyGame**:  
-  Se utiliza la función:  
-  ```python
-  pygame.draw.circle(surface, color, center, radius, width)
-  ```  
-  - **Parámetros**:
-    - `surface`: Superficie de dibujo.
-    - `color`: Color del círculo.
-    - `center`: Centro del círculo (x, y).
-    - `radius`: Radio del círculo.
-    - `width`: Ancho del borde (si se establece en 0, se dibuja un círculo lleno).
+## Características
 
-*Nota*: Para la opción básica se puede implementar manualmente el **Midpoint Circle Algorithm** o el **Bresenham Circle Algorithm**.
+| ✔ Función                                   | Detalle                                                                                |
+| ------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Herramientas de dibujo                      | Línea, Rectángulo, Círculo, Polígono, Curva Bézier (cuadrática)                        |
+| Algoritmos duales                           | **BASIC** (DDA, midpoint, etc.) / **PYGAME** (nativo)                                  |
+| Colores y grosor                            | Selector *Tkinter* para pincel y color de lienzo                                       |
+| Borrado                                     | Área rectangular (con soporte listo para borrado libre)                                |
+| Guardar / Abrir                             | Formato **JSON** propio — conserva color, grosor y algoritmo de cada figura            |
+| Exportar                                    | PNG / JPG usando NumPy + Matplotlib                                                    |
+| Ventana redimensionable                     | El lienzo se adapta manteniendo el dibujo                                              |
+| Arquitectura limpia                         | Capas desacopladas, fácil de testear/extender                                          |
 
-### 3. Rectángulos
-- **Método de PyGame**:  
-  Se utiliza la función:  
-  ```python
-  pygame.draw.rect(surface, color, rect, width)
-  ```  
-  - **Parámetros**:
-    - `surface`: Superficie donde se dibuja.
-    - `color`: Color del rectángulo.
-    - `rect`: Una tupla o un objeto `pygame.Rect` que define la posición y dimensiones (x, y, ancho, alto).
-    - `width`: Ancho del borde (0 para un rectángulo lleno).
+## Instalación
 
-*Nota*: La implementación manual se realiza trazando el rectángulo mediante la conexión de cuatro líneas (usando DDA o Bresenham) que definen sus lados.
+# 1. Clona el repositorio
+git clone https://github.com/tu-usuario/graficador.git
+cd graficador
 
-### 4. Polígonos
-- **Método de PyGame**:  
-  Se utiliza la función:  
-  ```python
-  pygame.draw.polygon(surface, color, pointlist, width)
-  ```  
-  - **Parámetros**:
-    - `surface`: Superficie de dibujo.
-    - `color`: Color del polígono.
-    - `pointlist`: Lista de puntos (tuplas) que definen los vértices del polígono.
-    - `width`: Ancho del borde (0 para un polígono lleno).
+# 2. (Opcional) crea entorno virtual
+python -m venv venv && source venv/bin/activate  # Windows: venv\Scripts\activate
 
-*Nota*: En la opción básica se puede implementar trazando cada segmento entre puntos consecutivos (con DDA o Bresenham) y cerrando la figura si es necesario.
+# 3. Instala dependencias
+pip install pygame numpy matplotlib
 
-### 5. Curvas
-- **Método de PyGame (Convencional)**:  
-  PyGame no cuenta con una función nativa específica para curvas tipo Bézier. La solución convencional consiste en:
-  1. **Cálculo de Puntos**:  
-     Calcular los puntos intermedios de una curva cuadrática de Bézier a partir de tres puntos de control, utilizando la fórmula:  
-     \[
-     B(t) = (1-t)^2 \, P_0 + 2(1-t)t \, P_1 + t^2 \, P_2,\quad t \in [0,1]
-     \]
-  2. **Dibujo de la Curva**:  
-     Una vez calculados los puntos, unirlos mediante la función:  
-     ```python
-     pygame.draw.lines(surface, color, False, point_list, width)
-     ```  
-     - **Parámetros**:
-       - `surface`: Superficie de dibujo.
-       - `color`: Color de la curva.
-       - `False`: Indica que no se cierra el conjunto de líneas.
-       - `point_list`: Lista de puntos calculados de la curva.
-       - `width`: Ancho de la línea.
+> **Tkinter** viene incluido en las distribuciones oficiales de Python.  
+> Si usas una instalación «slim» de Linux, instala el paquete `python3-tk`.
 
-*Nota*: La cantidad de puntos calculados (variando el parámetro "t") determinará la suavidad de la curva.
+## Puesta en marcha
+
+```bash
+python main.py
+```
+
+La ventana principal aparece con un lienzo blanco y una barra de herramientas vertical de 60 px.
+
+---
+
+## Guía de usuario
+
+### 5.1 Interfaz general
+![UI](docs/img/ui_overview.png)
+
+1. **Barra de herramientas** — selección de herramienta, algoritmo, colores y archivo.  
+2. **Lienzo** — área donde se dibuja; su fondo puede cambiar de color.  
+3. **Estado** — la herramienta seleccionada se marca con un borde rojo.
+
+### 5.2 Barra de herramientas
+
+| Icono               | Acción        | Descripción                                               |
+| -------------------- | ------------ | --------------------------------------------------------- |
+| 🗲 (línea)           | `LINE`       | Clic-inicio ➜ clic-fin                                    |
+| ⭕ (círculo)         | `CIRCLE`     | Clic en centro ➜ clic en borde                            |
+| ▢ (rectángulo)      | `RECTANGLE`  | Esquinas opuestas                                         |
+| 🔺 (polígono)       | `POLYGON`    | Clics sucesivos, botón derecho para cerrar                |
+| ~ (curva)           | `CURVE`      | Inicio, punto de control, fin                             |
+| ⬜ (goma)            | `ERASE_AREA` | Arrastra área a borrar                                    |
+| **B**               | `BASIC`      | Dibujo con algoritmos manuales                            |
+| **P**               | `PYGAME`     | Dibujo con PyGame (no disponible en borrado)              |
+| 🎨 (brocha)         | Color pincel | Abre selector RGB + grosor                                |
+| 🖼️ (lienzo)         | Color fondo  | Cambia fondo (afecta borrador)                            |
+| 💾                  | Guardar      | JSON                                                      |
+| 📂                  | Abrir        | JSON                                                      |
+| 📤                  | Exportar     | PNG/JPG                                                   |
+
+### 5.3 Flujo de dibujo
+
+1. Selecciona **herramienta**.  
+2. (Opcional) selecciona **algoritmo**.  
+3. Define **puntos** con el mouse:  
+   *Línea* → inicio y fin; *Curva* → inicio, control, fin; *Polígono* → clics sucesivos, botón derecho para cerrar.  
+4. El trazo aparece inmediatamente.  
+5. Guarda (`💾` o **S**) o exporta (`📤` o **E**) cuando lo necesites.
+
+### 5.4 Atajos de teclado
+
+| Tecla           | Acción                                  |
+| --------------- | ---------------------------------------- |
+| **S**           | Guardar JSON                            |
+| **E**           | Exportar imagen                         |
+| Mouse izquierdo | Añadir punto / definir origen           |
+| Mouse derecho   | Cerrar figura / procesar forma          |
+
+---
+
+## Estructura del código
+
+```text
+controllers/  # SuperController, DrawingController, EventHandler
+models/       # Canvas, Shape* + algorithms (BASIC / PYGAME)
+views/        # CanvasView, ToolbarView, Tk color picker
+main.py       # loop principal, inyección MVC
+icons/        # PNGs 24×24
+docs/         # Diagramas, screenshots, PDF técnico
+```
+
+*El documento técnico completo con UML y flujo de control se encuentra en*  
+`./documento técnico.pdf` (fuente `.tex` en `./`).
+
+---
+
+## Hoja de ruta
+
+- [ ] Undo / Redo con pila de snapshots  
+- [ ] Borrador libre (`EraseFree`) en la GUI  
+- [ ] Selección y transformación (mover, escalar, rotar)  
+- [ ] Test unitarios (algoritmos BASIC, serialización JSON)
+
+---
+
+## Créditos
+
+* **PyGame** — motor de renderizado.  
+* **NumPy + Matplotlib** — exportación de imagen.
+
+¡Disfruta dibujando y experimentando con algoritmos gráficos!  
+Cualquier *pull request*, sugerencia o reporte de *bug* es bienvenido. ✨
