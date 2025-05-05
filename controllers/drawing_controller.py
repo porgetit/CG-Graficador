@@ -1,5 +1,4 @@
-import pygame
-import tkinter as tk
+import tkinter as tk #
 from tkinter import filedialog
 from models.shapes import ShapeFactory
 from views.color_picker_modal import tk_color_picker
@@ -18,10 +17,9 @@ class DrawingController:
         self.canvasView = canvasView
         self.toolbarView = toolbarView  # Referencia a ToolbarView
         self.currentTool = "LINE"
-        self.currentAlgorithm = "BASIC"
         self.current_color = (0, 0, 0)
         self.currentLineWidth = 1
-        self.tempPoints = []
+        self.tempPoints = [] 
 
     def handleEvent(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -30,12 +28,6 @@ class DrawingController:
                     self.tempPoints.append(event.pos)
                 elif event.button == 3:
                     self.processShape(event.pos)
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_s:
-                self.saveCanvas()
-            elif event.key == pygame.K_e:
-                self.exportCanvas()
-        # Se pueden agregar otros atajos si se desea
 
     def processShape(self, pos):
         if self.currentTool in ["LINE", "CIRCLE", "RECTANGLE", "ERASE_AREA"]:
@@ -55,27 +47,14 @@ class DrawingController:
         self.tempPoints = []
 
     def createShapeFromInput(self, points, color, lineWidth):
-        shape = ShapeFactory.createShape(self.currentTool, points, color, lineWidth, self.currentAlgorithm)
+        shape = ShapeFactory.createShape(self.currentTool, points, color, lineWidth)
         self.canvas.addShape(shape)
         self.canvasView.render()
 
     def setTool(self, tool):
         self.currentTool = tool
         print(f"Herramienta seleccionada: {tool}")
-        if tool == "ERASE_AREA":
-            self.currentAlgorithm = "BASIC"
-            if hasattr(self.canvasView, 'toolbar'):
-                self.canvasView.toolbar.disableAlgorithmButton("PYGAME")
-        else:
-            if hasattr(self.canvasView, 'toolbar'):
-                self.canvasView.toolbar.enableAlgorithmButton("PYGAME")
-
-    def setAlgorithm(self, algorithm):
-        if self.currentTool == "ERASE_AREA" and algorithm != "BASIC":
-            print("Para borrado solo se permite el algoritmo BASIC")
-            return
-        self.currentAlgorithm = algorithm
-        print(f"Algoritmo seleccionado: {algorithm}")
+    
 
     def setBrushColor(self):
         """
@@ -127,14 +106,12 @@ class DrawingController:
             canvas_surface = pygame.Surface((rect.width, rect.height))
             canvas_surface.blit(self.canvasView.surface, (0, 0), rect)
             try:
-                import matplotlib.pyplot as plt
-                import numpy as np
+                import matplotlib.pyplot as plt, numpy as np #
                 arr = pygame.surfarray.array3d(canvas_surface)
                 arr = np.transpose(arr, (1, 0, 2))
                 plt.imsave(file_path, arr)
                 print(f"Canvas exportado a '{file_path}' (imagen)")
-            except ImportError:
-                print("Matplotlib o Numpy no están instalados.")
+            except ImportError as e: print("Matplotlib o Numpy no están instalados.", e) #
 
     def openCanvas(self):
         root = tk.Tk()

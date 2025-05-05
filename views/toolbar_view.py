@@ -1,5 +1,4 @@
 import os
-import pygame
 
 class Button:
     """
@@ -114,7 +113,7 @@ class ToolbarView:
         self.toolbar_width = toolbar_width
         self.height = height
         self.font = pygame.font.SysFont(None, 24)
-        # Cargar los íconos de las herramientas desde la carpeta "icons"
+        # Load icons from the "icons" folder
         icons_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "icons")
         self.icons = {
             "LINE": pygame.image.load(os.path.join(icons_path, "line.png")),
@@ -131,7 +130,7 @@ class ToolbarView:
             "OPEN": pygame.image.load(os.path.join(icons_path, "open.png")),
             "EXPORT": pygame.image.load(os.path.join(icons_path, "export.png")),
         }
-        # Escalar los íconos al tamaño adecuado
+        # Scale icons to the appropriate size
         for key in self.icons:
             self.icons[key] = pygame.transform.scale(self.icons[key], (24, 24))
         self.buttons = []
@@ -144,10 +143,10 @@ class ToolbarView:
 
     def createButtons(self):
         """
-        Crea y organiza los botones de la barra de herramientas.
+        Creates and arranges the toolbar buttons.
         """
         self.buttons = []
-        self.tool_buttons = {}
+        self.tool_buttons = {} 
         self.algo_buttons = {}
         self.file_buttons = {}
         margin = 5
@@ -155,7 +154,7 @@ class ToolbarView:
         btn_height = 40
         x = margin
         y = margin
-
+        
         # Sección de herramientas
         tools = ["LINE", "CIRCLE", "RECTANGLE", "POLYGON", "CURVE", "ERASE_AREA"]
         for tool in tools:
@@ -166,17 +165,7 @@ class ToolbarView:
             self.buttons.append(btn)
             self.tool_buttons[tool] = btn
             y += btn_height + margin
-
         y += margin
-        # Sección de algoritmos
-        algos = [("BASIC", "B"), ("PYGAME", "P")]
-        for algo, label in algos:
-            btn = Button((x, y, btn_width, btn_height),
-                         lambda a=algo: self.controller.setAlgorithm(a),
-                         self.font, text=label)
-            self.buttons.append(btn)
-            self.algo_buttons[algo] = btn
-            y += btn_height + margin
 
         y += margin
         # Botón para color del pincel
@@ -211,31 +200,12 @@ class ToolbarView:
             self.file_buttons[action] = btn
             y += btn_height + margin
 
-    def disableAlgorithmButton(self, algo):
-        """
-        Deshabilita un botón de algoritmo específico.
-
-        Args:
-            algo (str): Nombre del algoritmo a deshabilitar.
-        """
-        if algo in self.algo_buttons:
-            self.algo_buttons[algo].bg_color = (150, 150, 150)
-            self.algo_buttons[algo].callback = lambda: None
-
-    def enableAlgorithmButton(self, algo):
-        """
-        Habilita un botón de algoritmo específico.
-
-        Args:
-            algo (str): Nombre del algoritmo a habilitar.
-        """
-        if algo in self.algo_buttons:
-            self.algo_buttons[algo].bg_color = (200, 200, 200)
-            self.algo_buttons[algo].callback = lambda a=algo: self.controller.setAlgorithm(a)
+    
 
     def updateLayout(self, new_height):
         """
-        Actualiza el diseño de la barra de herramientas cuando cambia la altura.
+        Updates the layout of the toolbar when the height changes.
+
 
         Args:
             new_height (int): Nueva altura de la barra de herramientas.
@@ -245,7 +215,7 @@ class ToolbarView:
 
     def draw(self):
         """
-        Dibuja la barra de herramientas y sus botones en la superficie.
+        Draws the toolbar and its buttons on the surface.
         """
         pygame.draw.rect(self.surface, (180, 180, 180), (0, 0, self.toolbar_width, self.height))
         for btn in self.buttons:

@@ -1,15 +1,13 @@
-import pygame
 import math
 from models.shapes import Circle, Line, Rectangle, Polygon, Curve
 from abc import ABC, abstractmethod
 
 class DrawingAlgorithm(ABC):
-    def __init__(self, algorithmType = "BASIC"):
-        self.algorithmType = algorithmType  # "BASIC" o "PYGAME"
+    
 
     @abstractmethod
     def draw(self, shape, surface, canvas_rect):
-        pass
+        ...
 
 class DDADrawingAlgorithm(DrawingAlgorithm):
     def __init__(self):
@@ -27,13 +25,13 @@ class DDADrawingAlgorithm(DrawingAlgorithm):
             return
         xIncrement = dx / steps
         yIncrement = dy / steps
-        x, y = x1, y1
+        x, y = x1, y1        
         for _ in range(steps + 1):
             if canvas_rect.collidepoint(round(x), round(y)):
-                pygame.draw.circle(surface, shape.color, (round(x), round(y)), max(1, shape.lineWidth // 2))
+                surface.set_at((round(x), round(y)), shape.color)
             x += xIncrement
             y += yIncrement
-
+            
 class MidpointCircleAlgorithm(DrawingAlgorithm):
     def __init__(self):
         super().__init__("BASIC")
@@ -55,7 +53,7 @@ class MidpointCircleAlgorithm(DrawingAlgorithm):
             self.draw_circle_points(surface, x_center, y_center, x, y, shape.color, canvas_rect)
 
     def draw_circle_points(self, surface, xc, yc, x, y, color, canvas_rect):
-        points = [
+        points : list[tuple] = [
             (xc + x, yc + y), (xc - x, yc + y), (xc + x, yc - y), (xc - x, yc - y),
             (xc + y, yc + x), (xc - y, yc + x), (xc + y, yc - x), (xc - y, yc - x)
         ]
