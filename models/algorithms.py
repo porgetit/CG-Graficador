@@ -152,12 +152,23 @@ class BasicRectangleAlgorithm(DrawingAlgorithm):
 
 class BasicPolygonAlgorithm(DrawingAlgorithm):
     def draw(self, shape, surface, canvas_rect):
+        """
+        Dibuja un polígono conectando todos los puntos y cerrándolo automáticamente.
+
+        Args:
+            shape (Shape): Figura a dibujar.
+            surface (pygame.Surface): Superficie donde se dibuja.
+            canvas_rect (pygame.Rect): Área del canvas.
+        """
         points = [p for p in shape.points if canvas_rect.collidepoint(p)]
         if len(points) < 2:
             return
         thickness = shape.lineWidth
         for i in range(len(points) - 1):
             pygame.draw.line(surface, shape.color, points[i], points[i + 1], thickness)
+        # Cierra el polígono uniendo el último punto con el primero
+        if len(points) > 2:
+            pygame.draw.line(surface, shape.color, points[-1], points[0], thickness)
 
 class EraseAreaAlgorithm(DrawingAlgorithm):
     def draw(self, shape, surface, canvas_rect):

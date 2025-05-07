@@ -18,7 +18,7 @@ class DrawingController:
         self.canvasView = canvasView
         self.toolbarView = toolbarView  # Referencia a ToolbarView
         self.currentTool = "LINE"
-        self.currentAlgorithm = "BASIC"
+        self.currentAlgorithm = "BASIC"  # Forzar el uso de algoritmos básicos
         self.current_color = (0, 0, 0)
         self.currentLineWidth = 1
         self.tempPoints = []
@@ -38,21 +38,57 @@ class DrawingController:
         # Se pueden agregar otros atajos si se desea
 
     def processShape(self, pos):
-        if self.currentTool in ["LINE", "CIRCLE", "RECTANGLE", "ERASE_AREA"]:
+        """
+        Procesa la acción de la herramienta seleccionada en función de la posición dada.
+
+        Args:
+            pos (tuple): Coordenadas del punto donde se realiza la acción.
+        """
+        if self.currentTool == "POLYGON":
+            if pygame.mouse.get_pressed()[0]:  # Clic izquierdo
+                self.tempPoints.append(pos)
+                if len(self.tempPoints) > 1:
+                    # Dibuja una línea entre el último punto y el anterior
+                    shape = ShapeFactory.createShape(
+                        "LINE",
+                        self.tempPoints[-2:],
+                        self.current_color,
+                        self.currentLineWidth,
+                        self.currentAlgorithm
+                    )
+                    self.canvas.addShape(shape)
+                    self.canvasView.render()
+            elif pygame.mouse.get_pressed()[2]:  # Clic derecho
+                if len(self.tempPoints) > 2:
+                    # Cierra el polígono uniendo el último punto con el primero
+                    self.tempPoints.append(self.tempPoints[0])
+                    polygon = ShapeFactory.createShape(
+                        "POLYGON",
+                        self.tempPoints,
+                        self.current_color,
+                        self.currentLineWidth,
+                        self.currentAlgorithm
+                    )
+                    self.canvas.addShape(polygon)
+                    self.canvasView.render()
+                self.tempPoints = []  # Reinicia los puntos temporales
+        elif self.currentTool == "ERASE_AREA":
             if len(self.tempPoints) >= 1:
                 points = [self.tempPoints[0], pos]
-                color = self.canvas.background_color if self.currentTool.startswith("ERASE") else self.current_color
-                self.createShapeFromInput(points, color, self.currentLineWidth)
-        elif self.currentTool == "POLYGON":
-            if len(self.tempPoints) >= 2:
-                if self.tempPoints[0] != self.tempPoints[-1]:
-                    self.tempPoints.append(self.tempPoints[0])
-                self.createShapeFromInput(self.tempPoints, self.current_color, self.currentLineWidth)
-        elif self.currentTool == "CURVE":
-            if len(self.tempPoints) >= 2:
-                points = [self.tempPoints[0], self.tempPoints[1], pos]
-                self.createShapeFromInput(points, self.current_color, self.currentLineWidth)
-        self.tempPoints = []
+                self.eraseShapesInArea(points)
+                self.tempPoints = []  # Reinicia los puntos temporales después de borrar
+        else:
+            # Mantiene la lógica existente para otras herramientas
+            shape = ShapeFactory.createShape(
+                self.currentTool,
+                self.tempPoints + [pos],
+                self.current_color,
+                self.currentLineWidth,
+                self.currentAlgorithm
+            )
+            self.canvas.addShape(shape)
+            self.canvasView.render()
+            self.tempPoints = []  # Reinicia los puntos temporales después de dibujar
 
     def createShapeFromInput(self, points, color, lineWidth):
         shape = ShapeFactory.createShape(self.currentTool, points, color, lineWidth, self.currentAlgorithm)
@@ -174,3 +210,16 @@ class DrawingController:
         """
         new_color, _ = tk_color_picker(initial_color, self.currentLineWidth, "Seleccione un color", show_thickness=False)
         return new_color
+
+    def eraseShapesInArea(self, points):
+        """
+        Identifica y elimina las figuras que intersectan con el área de borrado.
+
+        Args:
+            points (list): Dos puntos que definen el área rectangular de borrado.
+        """
+        x1, y1 = points[0]
+        x2, y2 = points[1]
+        erase_rect = pygame.Rect(min(x1, x2), min(y1, y2), abs(x2 - x1), abs(y2 - y1))
+        self.canvas.removeShapesInArea(erase_rect)
+        self.canvasView.render()

@@ -59,3 +59,33 @@ class Canvas:
             algorithmType = data.get("algorithmType")
             shape = ShapeFactory.createShape(shape_type, points, color, lineWidth, algorithmType)
             self.shapes.append(shape)
+
+    def removeShapesInArea(self, area_rect):
+        """
+        Elimina las figuras que intersectan con un área rectangular.
+
+        Args:
+            area_rect (pygame.Rect): Área rectangular de borrado.
+        """
+        shapes_to_remove = []
+        for shape in self.shapes:
+            if self.shapeIntersectsArea(shape, area_rect):
+                shapes_to_remove.append(shape)
+        for shape in shapes_to_remove:
+            self.removeShape(shape)
+
+    def shapeIntersectsArea(self, shape, area_rect):
+        """
+        Verifica si una figura intersecta con un área rectangular.
+
+        Args:
+            shape (Shape): Figura a verificar.
+            area_rect (pygame.Rect): Área rectangular.
+
+        Returns:
+            bool: True si la figura intersecta con el área, False en caso contrario.
+        """
+        for point in shape.points:
+            if area_rect.collidepoint(point):
+                return True
+        return False

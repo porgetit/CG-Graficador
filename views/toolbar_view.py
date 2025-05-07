@@ -168,15 +168,15 @@ class ToolbarView:
             y += btn_height + margin
 
         y += margin
-        # Sección de algoritmos
-        algos = [("BASIC", "B"), ("PYGAME", "P")]
-        for algo, label in algos:
-            btn = Button((x, y, btn_width, btn_height),
-                         lambda a=algo: self.controller.setAlgorithm(a),
-                         self.font, text=label)
-            self.buttons.append(btn)
-            self.algo_buttons[algo] = btn
-            y += btn_height + margin
+        # Sección de algoritmos (comentada)
+        # algos = [("BASIC", "B"), ("PYGAME", "P")]
+        # for algo, label in algos:
+        #     btn = Button((x, y, btn_width, btn_height),
+        #                  lambda a=algo: self.controller.setAlgorithm(a),
+        #                  self.font, text=label)
+        #     self.buttons.append(btn)
+        #     self.algo_buttons[algo] = btn
+        #     y += btn_height + margin
 
         y += margin
         # Botón para color del pincel

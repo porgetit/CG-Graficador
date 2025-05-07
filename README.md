@@ -1,148 +1,51 @@
-# Graficador ✏️🖼️
+# Graficador con Algoritmos Básicos
 
-> Un editor 2D académico escrito en **Python 3 + PyGame** que demuestra — de forma interactiva — los algoritmos clásicos de rasterizado (DDA, midpoint circle, Bézier discreta…) frente a las primitivas nativas de PyGame.
->   
-> **Autor:** Kevin Esguerra Cardona — `Porgetit`
+## Descripción del Proyecto
 
----
+Este proyecto es una aplicación de dibujo interactiva desarrollada con **PyGame**, diseñada para permitir a los usuarios crear figuras geométricas básicas utilizando algoritmos de rasterización implementados manualmente. Aunque durante la etapa de desarrollo se incluyó la posibilidad de comparar los algoritmos básicos con los métodos nativos de PyGame, esta funcionalidad ha sido deshabilitada en la versión final. Por lo tanto, el sistema utiliza exclusivamente los algoritmos básicos para el trazado de figuras.
 
-## Índice
+## Funcionalidades Principales
 
-1. [Objetivos](#objetivos)  
-2. [Características](#características)  
-3. [Instalación](#instalación)  
-4. [Puesta en marcha](#puesta-en-marcha)  
-5. [Guía de usuario](#guía-de-usuario)  
-   - 5.1&nbsp;[Interfaz general](#51-interfaz-general)  
-   - 5.2&nbsp;[Barra de herramientas](#52-barra-de-herramientas)  
-   - 5.3&nbsp;[Flujo de dibujo](#53-flujo-de-dibujo)  
-   - 5.4&nbsp;[Atajos de teclado](#54-atajos-de-teclado)  
-6. [Estructura del código](#estructura-del-código)  
-7. [Hoja de ruta](#hoja-de-ruta)  
-8. [Créditos](#créditos)  
+### 1. Dibujo de Figuras Básicas
+El sistema permite al usuario dibujar las siguientes figuras geométricas:
+- **Líneas**: Utilizando el algoritmo **DDA (Digital Differential Analyzer)**.
+- **Círculos**: Implementados con el **Midpoint Circle Algorithm**.
+- **Rectángulos**: Construidos mediante la conexión de cuatro líneas trazadas con **DDA**.
+- **Polígonos**: Trazados mediante la conexión de puntos consecutivos utilizando **DDA**.
+- **Curvas**: Implementadas como curvas cuadráticas de Bézier.
 
----
+### 2. Herramientas de Dibujo
+El sistema incluye herramientas adicionales para mejorar la experiencia del usuario:
+- **Selección de herramientas**: Área dedicada para elegir entre las diferentes figuras geométricas.
+- **Cambio de color**: Posibilidad de cambiar el color del pincel y del lienzo.
+- **Borrado**: Herramientas para borrar figuras.
 
-## Objetivos
+### 3. Guardado y Exportación
+- **Guardado del lienzo**: Permite almacenar el lienzo en disco en un formato JSON.
+- **Exportación**: Posibilidad de exportar el lienzo como una imagen en formato JPG.
 
-* Comparar visualmente **algoritmos manuales** de rasterizado con el motor interno de PyGame.  
-* Practicar el patrón de diseño **Modelo–Vista–Controlador (MVC)**.  
-* Servir de base para futuras extensiones (herramientas de transformación, capas, etc.).
+### 4. Interfaz Gráfica
+- **Diseño adaptable**: La interfaz gráfica se ajusta automáticamente a los cambios en el tamaño de la ventana.
+- **Botones personalizados**: Los botones de la barra de herramientas están diseñados para ser intuitivos y visualmente representativos de su función.
 
-## Características
+## Detalles Técnicos
 
-| ✔ Función                                   | Detalle                                                                                |
-| ------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Herramientas de dibujo                      | Línea, Rectángulo, Círculo, Polígono, Curva Bézier (cuadrática)                        |
-| Algoritmos duales                           | **BASIC** (DDA, midpoint, etc.) / **PYGAME** (nativo)                                  |
-| Colores y grosor                            | Selector *Tkinter* para pincel y color de lienzo                                       |
-| Borrado                                     | Área rectangular (con soporte listo para borrado libre)                                |
-| Guardar / Abrir                             | Formato **JSON** propio — conserva color, grosor y algoritmo de cada figura            |
-| Exportar                                    | PNG / JPG usando NumPy + Matplotlib                                                    |
-| Ventana redimensionable                     | El lienzo se adapta manteniendo el dibujo                                              |
-| Arquitectura limpia                         | Capas desacopladas, fácil de testear/extender                                          |
+### Algoritmos Básicos
+Los algoritmos básicos han sido implementados manualmente para garantizar un control completo sobre el proceso de rasterización. Estos algoritmos incluyen:
+- **DDA (Digital Differential Analyzer)** para líneas.
+- **Midpoint Circle Algorithm** para círculos.
+- **Curvas de Bézier** para curvas cuadráticas.
 
-## Instalación
+### Comparación con PyGame
+Durante el desarrollo, se incluyó la posibilidad de comparar los algoritmos básicos con los métodos nativos de PyGame. Sin embargo, esta funcionalidad ha sido deshabilitada en la versión final, y el sistema utiliza exclusivamente los algoritmos básicos.
 
-# 1. Clona el repositorio
-git clone https://github.com/tu-usuario/graficador.git
-cd graficador
+## Requisitos del Sistema
+- **Python 3.8 o superior**.
+- **PyGame 2.0 o superior**.
+- **Numpy** (para manipulación de matrices de píxeles).
 
-# 2. (Opcional) crea entorno virtual
-python -m venv venv && source venv/bin/activate  # Windows: venv\Scripts\activate
+## Contribuciones
+Las contribuciones son bienvenidas.
 
-# 3. Instala dependencias
-pip install pygame numpy matplotlib
-
-> **Tkinter** viene incluido en las distribuciones oficiales de Python.  
-> Si usas una instalación «slim» de Linux, instala el paquete `python3-tk`.
-
-## Puesta en marcha
-
-```bash
-python main.py
-```
-
-La ventana principal aparece con un lienzo blanco y una barra de herramientas vertical de 60 px.
-
----
-
-## Guía de usuario
-
-### 5.1 Interfaz general
-![UI](docs/img/ui_overview.png)
-
-1. **Barra de herramientas** — selección de herramienta, algoritmo, colores y archivo.  
-2. **Lienzo** — área donde se dibuja; su fondo puede cambiar de color.  
-3. **Estado** — la herramienta seleccionada se marca con un borde rojo.
-
-### 5.2 Barra de herramientas
-
-| Icono               | Acción        | Descripción                                               |
-| -------------------- | ------------ | --------------------------------------------------------- |
-| 🗲 (línea)           | `LINE`       | Clic-inicio ➜ clic-fin                                    |
-| ⭕ (círculo)         | `CIRCLE`     | Clic en centro ➜ clic en borde                            |
-| ▢ (rectángulo)      | `RECTANGLE`  | Esquinas opuestas                                         |
-| 🔺 (polígono)       | `POLYGON`    | Clics sucesivos, botón derecho para cerrar                |
-| ~ (curva)           | `CURVE`      | Inicio, punto de control, fin                             |
-| ⬜ (goma)            | `ERASE_AREA` | Arrastra área a borrar                                    |
-| **B**               | `BASIC`      | Dibujo con algoritmos manuales                            |
-| **P**               | `PYGAME`     | Dibujo con PyGame (no disponible en borrado)              |
-| 🎨 (brocha)         | Color pincel | Abre selector RGB + grosor                                |
-| 🖼️ (lienzo)         | Color fondo  | Cambia fondo (afecta borrador)                            |
-| 💾                  | Guardar      | JSON                                                      |
-| 📂                  | Abrir        | JSON                                                      |
-| 📤                  | Exportar     | PNG/JPG                                                   |
-
-### 5.3 Flujo de dibujo
-
-1. Selecciona **herramienta**.  
-2. (Opcional) selecciona **algoritmo**.  
-3. Define **puntos** con el mouse:  
-   *Línea* → inicio y fin; *Curva* → inicio, control, fin; *Polígono* → clics sucesivos, botón derecho para cerrar.  
-4. El trazo aparece inmediatamente.  
-5. Guarda (`💾` o **S**) o exporta (`📤` o **E**) cuando lo necesites.
-
-### 5.4 Atajos de teclado
-
-| Tecla           | Acción                                  |
-| --------------- | ---------------------------------------- |
-| **S**           | Guardar JSON                            |
-| **E**           | Exportar imagen                         |
-| Mouse izquierdo | Añadir punto / definir origen           |
-| Mouse derecho   | Cerrar figura / procesar forma          |
-
----
-
-## Estructura del código
-
-```text
-controllers/  # SuperController, DrawingController, EventHandler
-models/       # Canvas, Shape* + algorithms (BASIC / PYGAME)
-views/        # CanvasView, ToolbarView, Tk color picker
-main.py       # loop principal, inyección MVC
-icons/        # PNGs 24×24
-docs/         # Diagramas, screenshots, PDF técnico
-```
-
-*El documento técnico completo con UML y flujo de control se encuentra en*  
-`./documento técnico.pdf` (fuente `.tex` en `./`).
-
----
-
-## Hoja de ruta
-
-- [ ] Undo / Redo con pila de snapshots  
-- [ ] Borrador libre (`EraseFree`) en la GUI  
-- [ ] Selección y transformación (mover, escalar, rotar)  
-- [ ] Test unitarios (algoritmos BASIC, serialización JSON)
-
----
-
-## Créditos
-
-* **PyGame** — motor de renderizado.  
-* **NumPy + Matplotlib** — exportación de imagen.
-
-¡Disfruta dibujando y experimentando con algoritmos gráficos!  
-Cualquier *pull request*, sugerencia o reporte de *bug* es bienvenido. ✨
+## Autores
+Kevin Esguerra Cardona y Juan Pablo Sánchez Zapata.
