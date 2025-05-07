@@ -28,6 +28,10 @@ El sistema incluye herramientas adicionales para mejorar la experiencia del usua
 - **Diseño adaptable**: La interfaz gráfica se ajusta automáticamente a los cambios en el tamaño de la ventana.
 - **Botones personalizados**: Los botones de la barra de herramientas están diseñados para ser intuitivos y visualmente representativos de su función.
 
+## Vídeo de demostración
+
+https://youtu.be/aSBfI1AK_7Q
+
 ## Detalles Técnicos
 
 ### Algoritmos Básicos
