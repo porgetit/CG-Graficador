@@ -166,7 +166,6 @@ class BasicPolygonAlgorithm(DrawingAlgorithm):
         thickness = shape.lineWidth
         for i in range(len(points) - 1):
             pygame.draw.line(surface, shape.color, points[i], points[i + 1], thickness)
-        # Cierra el polígono uniendo el último punto con el primero
         if len(points) > 2:
             pygame.draw.line(surface, shape.color, points[-1], points[0], thickness)
 
