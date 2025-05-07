@@ -55,9 +55,3 @@ while running:
 
 pygame.quit()
 sys.exit()
-
-
-"""
-BUG: El sistema de borrado no funciona correctamente. El problema es que en lugar de eliminar las figuras, está pintando sobre ellas. Lo que ocasiona que el canvas internamente conserve información de las figuras que deberían ser borradas.
-Posible solución: Cambiar el algoritmo de borrado para que elimine las figuras del canvas en lugar de pintarlas. Esto podría implicar modificar la forma en que se manejan los eventos de borrado y cómo se actualiza el canvas después de cada acción.
-"""
